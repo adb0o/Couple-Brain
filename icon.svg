@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><clipPath id="l"><circle cx="206" cy="256" r="130"/></clipPath></defs>
+<rect width="512" height="512" fill="#1D1A2B"/>
+<g transform="translate(256 256) scale(1) translate(-256 -256)">
+<circle cx="206" cy="256" r="130" fill="#5B7BFF"/><circle cx="306" cy="256" r="130" fill="#FF5C93"/>
+<circle cx="306" cy="256" r="130" clip-path="url(#l)" fill="#F7F5FB"/>
+<g transform="translate(218 212) scale(3.2)" fill="#1D1A2B"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0112 7.6 4.3 4.3 0 0119.5 10c0 5.4-7.5 10-7.5 10z"/></g></g></svg>
