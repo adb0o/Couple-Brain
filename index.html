@@ -404,6 +404,46 @@ a.drive,a.driverow{color:inherit;text-decoration:none;-webkit-user-select:none;u
 @keyframes wiggle{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-12deg)}60%{transform:translateX(7px) rotate(8deg)}}
 @media (prefers-reduced-motion: reduce){.tile.drive .cart,.tile.drive .pin,.driverow .dr-cart{animation:none!important}.tile.drive{transition:none}}
 
+
+/* ===== Photos ===== */
+.btn[disabled]{opacity:.45;pointer-events:none}
+.photo-wrap{margin:0 0 18px}
+.photo-wrap .tile{display:block}
+.photo-wrap .photo-empty{display:flex}
+.tile.photos{position:relative;padding:0;overflow:hidden;border-radius:24px}
+.photow{position:relative;display:block;width:100%;height:250px;overflow:hidden;cursor:pointer;background:color-mix(in srgb,var(--muted) 14%,var(--surface))}
+.photow img.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
+.photow img.ph.on{opacity:1}
+.ph-scrim{position:absolute;left:0;right:0;bottom:0;padding:48px 16px 14px;background:linear-gradient(to top,rgba(10,8,20,.74),rgba(10,8,20,0));color:#fff;pointer-events:none}
+.ph-cap{font:500 27px/1.05 var(--f-h);overflow-wrap:anywhere;padding-right:54px}
+.ph-meta{font-size:13px;opacity:.88;margin-top:3px}
+.ph-count{position:absolute;right:14px;bottom:14px;font:600 12px var(--f-b);color:#fff;background:rgba(10,8,20,.5);padding:3px 9px;border-radius:99px}
+.ph-count:empty{display:none}
+.ph-badge{position:absolute;left:12px;top:12px;background:var(--surface);color:var(--ink);font:700 13px var(--f-b);padding:6px 12px;border-radius:99px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.ph-badge[hidden]{display:none}
+.ph-add{position:absolute;right:12px;top:12px;z-index:2;width:46px;height:46px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:26px;line-height:1;display:grid;place-items:center;box-shadow:0 2px 10px rgba(0,0,0,.28)}
+.photo-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;min-height:190px;padding:22px;text-align:center;border:2px dashed color-mix(in srgb,var(--muted) 50%,transparent);background:transparent;color:var(--muted);border-radius:24px}
+.photo-empty .pe{font-size:42px;line-height:1;transform:rotate(-7deg);margin-bottom:4px}
+.photo-empty b{font:700 20px var(--f-d);color:var(--ink)}
+.ph-prev{margin:10px 0 0;text-align:center}
+.ph-prev img{max-width:100%;max-height:36vh;border-radius:16px;display:block;margin:0 auto}
+#viewer{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:#08060F;color:#fff}
+#viewer.open{display:flex}
+.v-top{display:flex;justify-content:space-between;align-items:center;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 8px}
+.v-top button,.v-nav{background:rgba(255,255,255,.14);color:#fff}
+.v-top button{width:46px;height:46px;border-radius:50%;font-size:22px;display:grid;place-items:center}
+.v-top span{font:600 14px var(--f-b);opacity:.85}
+.v-stage{position:relative;flex:1;min-height:0;display:grid;place-items:center;padding:0 10px}
+.v-stage img{position:absolute;inset:0 10px;width:calc(100% - 20px);height:100%;object-fit:contain}
+.v-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:66px;border-radius:14px;font-size:30px;display:grid;place-items:center}
+.v-nav.l{left:8px}.v-nav.r{right:8px}
+.v-bot{padding:12px 18px calc(18px + env(safe-area-inset-bottom,0px))}
+.v-bot .vcap{font:500 30px/1.05 var(--f-h);overflow-wrap:anywhere}
+.v-bot .meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;font-size:14px;opacity:.85}
+.v-bot .del{color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:8px 0}
+.v-bot .yr{display:inline-block;background:#fff;color:#1D1A2B;font-weight:700;font-size:13px;padding:4px 10px;border-radius:99px;margin-bottom:8px}
+@media (prefers-reduced-motion: reduce){.photow img.ph{transition:none}}
+
 /* Barre d'onglets */
 #tabs{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;display:flex;background:var(--surface);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:20}
 #tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;color:var(--muted);font-size:11.5px;font-weight:600;text-align:center}
@@ -438,6 +478,8 @@ a.drive,a.driverow{color:inherit;text-decoration:none;-webkit-user-select:none;u
 <div id="app"><main id="view"></main></div>
 <nav id="tabs" aria-label="Navigation"></nav>
 <div id="sheet"></div>
+<input type="file" id="photo-input" accept="image/*" aria-hidden="true" tabindex="-1" style="position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0">
+<div id="viewer" role="dialog" aria-modal="true" aria-label="Photo en grand"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script type="module">
@@ -486,11 +528,11 @@ const IC={
 const ic=(n,s=22)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 
 /* ---------- État ---------- */
-const S={people:[],lists:[],items:[],pots:[],expenses:[],notes:[],events:[],meals:[],wishes:[],meta:[]};
+const S={people:[],lists:[],items:[],pots:[],expenses:[],notes:[],events:[],meals:[],wishes:[],meta:[],photos:[]};
 const loaded={};
 let db=null,ME='moi',SHARED=false,READONLY=false,onboarded=false,drawTimer=null,drawId=null;
 let auth=null,fs=null,M=null,AM=null,CID=null,COUPLE=null,USER_EMAIL='',UNSUBS=[],gate='loading';
-const ui={authMode:'login',gateErr:'',email:'',tab:'home',list:null,pot:'general',agenda:'cal',us:'mots',month:todayStr().slice(0,7),sel:todayStr(),weekStart:mondayOf(todayStr()),wishKind:'all'};
+const ui={photoIdx:0,viewIdx:0,photoPauseUntil:0,photoFocus:null,authMode:'login',gateErr:'',email:'',tab:'home',list:null,pot:'general',agenda:'cal',us:'mots',month:todayStr().slice(0,7),sel:todayStr(),weekStart:mondayOf(todayStr()),wishKind:'all'};
 const KINDS=[['resto','🍽️','Resto'],['film','🎬','Film'],['lieu','📍','Lieu'],['autre','✨','Autre']];
 /* Leclerc Drive : changez l'adresse ici si vous changez de magasin */
 const DRIVE_URL='https://m-courses.leclercdrive.fr/magasin-997371-000009-paris';
@@ -649,7 +691,8 @@ function Home(){
   const wishTile=`<div class="tile wish span2"><button class="wl" data-act="goto" data-tab="us" data-sub="envies">${wl.length?wl.map(w=>`<span class="pill" style="--c:${cv(w.by)}">${KE(w.kind)} ${esc(w.text.length>22?w.text.slice(0,22)+'…':w.text)}</span>`).join(''):'<span class="big">Vos envies</span><div class="sm">Restos, films, voyages : notez-les ici</div>'}</button><button class="dice" data-act="draw" aria-label="Tirer une envie au sort">🎲</button></div>`;
 
   const driveT=driveTile(pending,anim);
-  return head(`${greet()}${me&&me.name?', '+me.name:''}`)+hero+quickHtml+`<div class="week">${strip}</div><div class="bento">${menuTile}${driveT}${shopTile}${cashTile}${noteTile}${wishTile}</div>`;
+  const photoT=photoTile();
+  return head(`${greet()}${me&&me.name?', '+me.name:''}`)+hero+`<div class="photo-wrap">${photoT}</div>`+quickHtml+`<div class="week">${strip}</div><div class="bento">${menuTile}${driveT}${shopTile}${cashTile}${noteTile}${wishTile}</div>`;
 }
 
 const eur0=new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});
@@ -798,6 +841,7 @@ function render(){
   const cs2=v.querySelector('.chips');if(cs2)cs2.scrollLeft=sl;
   if(keep){const n=v.querySelector(`[data-keep="${keep.k}"]`);if(n){n.value=keep.val;n.focus();try{n.setSelectionRange(keep.s,keep.s)}catch(e){}}}
   $('#tabs').style.display=gate==='app'?'flex':'none';$('#tabs').innerHTML=gate!=='app'?'':TABS.map(([k,l,i])=>`<button data-act="goto" data-tab="${k}" class="${ui.tab===k?'on':''}" aria-current="${ui.tab===k?'page':'false'}">${ic(i)}<span>${l}</span></button>`).join('');
+  if(gate==='app'&&ui.tab==='home')applyPhoto(true);
 }
 
 /* ---------- Feuilles & messages ---------- */
@@ -1072,6 +1116,121 @@ ACT.draw=()=>{
 };
 ACT.drawDone=async()=>{if(drawId){const id=drawId;closeSheet();await patch('wishes',id,{done:true,doneBy:ME,doneAt:Date.now()})}};
 
+/* ---------- Photos : copies réduites stockées dans Firestore ---------- */
+let PENDING=null;
+function anniv(p){
+  if(!p.date)return 0;
+  const ty=new Date().getFullYear(),py=+p.date.slice(0,4);
+  if(!(py<ty))return 0;
+  return Math.abs(diffDays(todayStr(),ty+'-'+p.date.slice(5)))<=3?ty-py:0;
+}
+function photoList(){
+  const all=S.photos.filter(p=>p.data).slice().sort((a,b)=>b.ts-a.ts);
+  return all.filter(p=>anniv(p)).concat(all.filter(p=>!anniv(p)));
+}
+const longDate=d=>parse(d||todayStr()).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+function photoTile(){
+  if(!photoList().length)return `<button class="tile photo-empty span2" data-act="photoAdd"><span class="pe">📷</span><b>Vos souvenirs vivront ici</b><span>Déposez une photo : elle défilera sur l’Accueil de vous deux.</span></button>`;
+  return `<div class="tile photos span2"><div class="photow" data-act="photoOpen" role="button" aria-label="Ouvrir la photo en grand"><img class="ph on" alt=""><img class="ph" alt=""><span class="ph-badge" hidden></span><div class="ph-scrim"><div class="ph-cap"></div><div class="ph-meta"></div></div><span class="ph-count"></span></div><button class="ph-add" data-act="photoAdd" aria-label="Ajouter une photo">＋</button></div>`;
+}
+function applyPhoto(first){
+  const w=document.querySelector('.photow');if(!w)return;
+  const list=photoList();if(!list.length)return;
+  if(ui.photoFocus){const k=list.findIndex(p=>p.id===ui.photoFocus);if(k>=0){ui.photoIdx=k;ui.photoFocus=null}}
+  if(ui.photoIdx>=list.length||ui.photoIdx<0)ui.photoIdx=0;
+  const p=list[ui.photoIdx],imgs=w.querySelectorAll('img.ph');
+  const cur=w.querySelector('img.ph.on')||imgs[0],nxt=cur===imgs[0]?imgs[1]:imgs[0];
+  if(first){cur.src=p.data;cur.classList.add('on');nxt.classList.remove('on')}
+  else{
+    const show=()=>{nxt.classList.add('on');cur.classList.remove('on')};
+    nxt.src=p.data;(nxt.decode?nxt.decode():Promise.resolve()).then(show,show);
+  }
+  const cap=w.querySelector('.ph-cap');cap.textContent=p.caption||'';cap.style.display=p.caption?'':'none';
+  w.querySelector('.ph-meta').textContent=`${nameOf(p.by)} · ${longDate(p.date)}`;
+  const y=anniv(p),b=w.querySelector('.ph-badge');b.hidden=!y;if(y)b.textContent=`💞 Il y a ${y} an${y>1?'s':''}`;
+  w.querySelector('.ph-count').textContent=list.length>1?`${ui.photoIdx+1}/${list.length}`:'';
+}
+function photoTick(){
+  if(reduce||document.hidden||gate!=='app'||ui.tab!=='home'||Date.now()<ui.photoPauseUntil)return;
+  if($('#sheet').firstChild||$('#viewer').classList.contains('open'))return;
+  const n=photoList().length;if(n<2)return;
+  ui.photoIdx=(ui.photoIdx+1)%n;applyPhoto(false);
+}
+setInterval(photoTick,5000);
+document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('.photow'))ui.photoPauseUntil=Date.now()+8000});
+
+async function shrinkImage(file){
+  const url=URL.createObjectURL(file);
+  try{
+    const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('decode'));i.src=url});
+    let max=1000,q=0.78,out='',w=0,h=0;
+    for(let k=0;k<6;k++){
+      const sc=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+      w=Math.max(1,Math.round(img.naturalWidth*sc));h=Math.max(1,Math.round(img.naturalHeight*sc));
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(img,0,0,w,h);
+      out=c.toDataURL('image/jpeg',q);
+      if(out.length<=330000)return{data:out,w,h};
+      max=Math.round(max*0.85);q=Math.max(0.5,q-0.07);
+    }
+    if(out.length>900000)throw new Error('trop lourde');
+    return{data:out,w,h};
+  }finally{URL.revokeObjectURL(url)}
+}
+$('#photo-input').addEventListener('change',e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';
+  if(f)handlePhotoFile(f);
+});
+ACT.photoAdd=()=>{$('#photo-input').click()};
+async function handlePhotoFile(f){
+  PENDING=null;
+  let d=todayStr();
+  if(f.lastModified){const t=new Date(f.lastModified);if(t.getFullYear()>=2000&&t<=new Date())d=ymd(t)}
+  openSheet('Nouvelle photo',`<div id="ph-prev" class="ph-prev"><p class="muted">Préparation de la photo…</p></div>
+    <label for="ph-cap">Légende (facultatif)</label><input id="ph-cap" maxlength="80" placeholder="Notre premier week-end…">
+    <label for="ph-date">Date de la photo</label><input id="ph-date" type="date" value="${d}" max="${todayStr()}">
+    <p class="hint">Elle sera réduite pour tenir dans votre espace gratuit. L’original reste dans votre photothèque.</p>
+    <div class="sheet-actions"><button class="btn primary" id="ph-save" data-act="photoSave" disabled>Ajouter</button></div>`);
+  try{
+    const r=await shrinkImage(f);
+    const box=$('#ph-prev');if(!box)return; // fenêtre fermée entre-temps
+    PENDING=r;box.innerHTML='<img alt="Aperçu de la photo">';box.firstChild.src=r.data;$('#ph-save').disabled=false;
+  }catch(err){console.error(err);closeSheet();toast('Impossible de lire cette photo.')}
+}
+ACT.photoSave=async()=>{
+  if(!PENDING)return;
+  const cap=$('#ph-cap').value.trim(),date=$('#ph-date').value||todayStr(),r=PENDING;PENDING=null;
+  const id=uid();closeSheet();ui.photoFocus=id;
+  await put('photos',id,{data:r.data,w:r.w,h:r.h,caption:cap,date,by:ME,ts:Date.now()});
+  toast('Photo ajoutée 📷');
+};
+function renderViewer(){
+  const v=$('#viewer'),list=photoList();
+  if(!list.length){ACT.photoClose();return}
+  if(ui.viewIdx>=list.length||ui.viewIdx<0)ui.viewIdx=0;
+  const p=list[ui.viewIdx],y=anniv(p);
+  v.innerHTML=`<div class="v-top"><span>${ui.viewIdx+1} / ${list.length}</span><button data-act="photoClose" aria-label="Fermer">✕</button></div>
+    <div class="v-stage"><img alt="${esc(p.caption||'Photo')}">${list.length>1?`<button class="v-nav l" data-act="photoNav" data-d="-1" aria-label="Photo précédente">‹</button><button class="v-nav r" data-act="photoNav" data-d="1" aria-label="Photo suivante">›</button>`:''}</div>
+    <div class="v-bot">${y?`<span class="yr">💞 Il y a ${y} an${y>1?'s':''}</span>`:''}${p.caption?`<div class="vcap">${esc(p.caption)}</div>`:''}<div class="meta"><span>${esc(nameOf(p.by))} · ${esc(longDate(p.date))}</span>${p.by===ME?`<button class="del" data-act="photoDel" data-id="${p.id}">Supprimer</button>`:''}</div></div>`;
+  v.querySelector('.v-stage img').src=p.data;
+}
+ACT.photoOpen=()=>{ui.viewIdx=ui.photoIdx;$('#viewer').classList.add('open');renderViewer()};
+ACT.photoNav=el=>{const n=photoList().length;ui.viewIdx=(ui.viewIdx+Number(el.dataset.d)+n)%n;renderViewer()};
+ACT.photoClose=()=>{
+  const v=$('#viewer');v.classList.remove('open');v.innerHTML='';
+  ui.photoIdx=ui.viewIdx;if(ui.tab==='home')applyPhoto(true);
+};
+ACT.photoDel=el=>arm(el,async()=>{const id=el.dataset.id;ACT.photoClose();ui.photoIdx=0;await del('photos',id);toast('Photo supprimée.')});
+(()=>{
+  let x0=null;const v=$('#viewer');
+  v.addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});
+  v.addEventListener('touchend',e=>{
+    if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;
+    if(Math.abs(dx)>60&&photoList().length>1)ACT.photoNav({dataset:{d:dx<0?'1':'-1'}});
+  },{passive:true});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&v.classList.contains('open'))ACT.photoClose()});
+})();
+
 /* ---------- Écrans de connexion ---------- */
 function logoSvg(){
   return `<svg class="gate-logo" viewBox="0 0 230 150" aria-hidden="true"><defs><clipPath id="gl"><circle cx="82" cy="75" r="64"/></clipPath></defs><circle cx="82" cy="75" r="64" style="fill:var(--c1)"/><circle cx="148" cy="75" r="64" style="fill:var(--c2)"/><circle cx="148" cy="75" r="64" clip-path="url(#gl)" style="fill:var(--ink)"/><g transform="translate(106 66) scale(.75)" style="fill:var(--bg)"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0112 7.6 4.3 4.3 0 0119.5 10c0 5.4-7.5 10-7.5 10z"/></g></svg>`;
@@ -1171,7 +1330,7 @@ function subscribe(){
 function fsAdapter(){
   const col=n=>M.collection(fs,'couples',CID,n),ref=(n,id)=>M.doc(fs,'couples',CID,n,id);
   return{collection:n=>({
-    onSnapshot:(next,err)=>M.onSnapshot(col(n),next,err),
+    onSnapshot:(next,err)=>M.onSnapshot(n==='photos'?M.query(col(n),M.orderBy('ts','desc'),M.limit(30)):col(n),next,err),
     doc:id=>({set:v=>M.setDoc(ref(n,id),v),update:v=>M.updateDoc(ref(n,id),v),delete:()=>M.deleteDoc(ref(n,id))})
   })};
 }
