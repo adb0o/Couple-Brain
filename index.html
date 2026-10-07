@@ -372,6 +372,38 @@ input:not([type=date]):not([type=time]),textarea{-webkit-appearance:none;appeara
 .or::before,.or::after{content:'';flex:1;height:1px;background:var(--line)}
 .invite-code{display:block;text-align:center;font:700 26px/1 var(--f-d);letter-spacing:.08em;padding:16px;border-radius:16px;background:var(--surface);border:1.5px dashed color-mix(in srgb,var(--muted) 50%,transparent);user-select:all}
 
+
+/* ===== Direction le drive ===== */
+a.drive,a.driverow{color:inherit;text-decoration:none;-webkit-user-select:none;user-select:none}
+.tile.drive{position:relative;display:block;overflow:hidden;padding:16px 16px 14px;background:color-mix(in srgb,var(--c1) 10%,var(--surface));border-color:color-mix(in srgb,var(--c1) 26%,var(--line));transition:transform .15s}
+.tile.drive:active{transform:scale(.985)}
+.drive-road{position:relative;display:block;height:54px;margin-bottom:12px}
+.drive-road::before{content:'';position:absolute;left:48px;right:38px;top:35px;border-top:3px dashed color-mix(in srgb,var(--c1) 45%,transparent)}
+.drive .cart{position:absolute;left:0;top:2px;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:var(--surface);border:1px solid color-mix(in srgb,var(--c1) 32%,var(--line))}
+.drive .cart .badge{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:var(--c2);color:var(--on);font:700 13px/22px var(--f-b);font-style:normal;text-align:center}
+.drive .pin{position:absolute;right:4px;top:8px;font-size:28px;line-height:1;transform-origin:50% 100%}
+.drive-body{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.drive-body>span:first-child{min-width:0}
+.drive-body b{display:block;font:700 20px/1.1 var(--f-d);letter-spacing:-.02em}
+.drive-sub{display:block;margin-top:5px;color:var(--muted);font-size:14px;line-height:1.3}
+.drive-go{flex:none;display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 10px 0 16px;border-radius:99px;background:var(--ink);color:var(--bg);font-weight:700;font-size:14px}
+.tile.drive.fresh .cart{animation:roll .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes roll{from{transform:translateX(-70px) rotate(-14deg);opacity:0}60%{transform:translateX(5px) rotate(3deg);opacity:1}to{transform:none}}
+.tile.drive.go .cart{animation:vroom .8s ease-in-out forwards}
+@keyframes vroom{0%{left:0;transform:rotate(0)}20%{transform:rotate(-8deg)}100%{left:calc(100% - 46px);transform:rotate(0)}}
+.tile.drive.go .pin{animation:hop .5s .65s ease-out}
+@keyframes hop{0%,100%{transform:none}40%{transform:translateY(-12px) scale(1.15)}}
+.driverow{display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:12px 14px;border-radius:18px;background:color-mix(in srgb,var(--c1) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--c1) 26%,var(--line))}
+.driverow:active{transform:scale(.99)}
+.driverow .dr-cart{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:var(--surface);border:1px solid var(--line);flex:none}
+.driverow .dr-t{flex:1;min-width:0}
+.driverow .dr-t b{display:block;font:600 16px var(--f-d)}
+.driverow .dr-t small{color:var(--muted);font-size:13px}
+.driverow .dr-go{flex:none;font-weight:700;font-size:14px;padding:9px 14px;border-radius:99px;background:var(--ink);color:var(--bg)}
+.driverow.go .dr-cart{animation:wiggle .6s ease}
+@keyframes wiggle{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-12deg)}60%{transform:translateX(7px) rotate(8deg)}}
+@media (prefers-reduced-motion: reduce){.tile.drive .cart,.tile.drive .pin,.driverow .dr-cart{animation:none!important}.tile.drive{transition:none}}
+
 /* Barre d'onglets */
 #tabs{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;display:flex;background:var(--surface);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:20}
 #tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;color:var(--muted);font-size:11.5px;font-weight:600;text-align:center}
@@ -460,6 +492,22 @@ let db=null,ME='moi',SHARED=false,READONLY=false,onboarded=false,drawTimer=null,
 let auth=null,fs=null,M=null,AM=null,CID=null,COUPLE=null,USER_EMAIL='',UNSUBS=[],gate='loading';
 const ui={authMode:'login',gateErr:'',email:'',tab:'home',list:null,pot:'general',agenda:'cal',us:'mots',month:todayStr().slice(0,7),sel:todayStr(),weekStart:mondayOf(todayStr()),wishKind:'all'};
 const KINDS=[['resto','🍽️','Resto'],['film','🎬','Film'],['lieu','📍','Lieu'],['autre','✨','Autre']];
+/* Leclerc Drive : changez l'adresse ici si vous changez de magasin */
+const DRIVE_URL='https://m-courses.leclercdrive.fr/magasin-997371-000009-paris';
+const DRIVE_PHRASES=['Le frigo a faim, le chariot vous attend.','Un clic, et les courses sont dans le coffre.','Mission ravitaillement : 3, 2, 1…','Pas de queue, pas de stress.','Panier plein, cœur content.','Votre chariot s’impatiente.','Chauffeur, au drive, et que ça roule !','Les pâtes ne vont pas s’acheter toutes seules.','Qui commande ce soir ? Vous deux, bien sûr.','Direction le rayon des bonnes idées.'];
+function driveTile(pending,anim){
+  const day=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/864e5);
+  const phrase=pending>0?`${pending} article${pending>1?'s':''} sur la liste : on fonce !`:DRIVE_PHRASES[day%DRIVE_PHRASES.length];
+  return `<a class="tile drive span2 ${anim?'fresh':''}" href="${DRIVE_URL}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir Leclerc Drive dans un nouvel onglet"><span class="drive-road" aria-hidden="true"><span class="cart">🛒${pending>0?`<i class="badge">${pending>99?'99+':pending}</i>`:''}</span><span class="pin">📍</span></span><span class="drive-body"><span><b>Direction le drive</b><span class="drive-sub">${esc(phrase)}</span></span><span class="drive-go">Y aller ${ic('chev',18)}</span></span></a>`;
+}
+function driveRow(n){
+  return `<a class="driverow" href="${DRIVE_URL}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir Leclerc Drive dans un nouvel onglet"><span class="dr-cart" aria-hidden="true">🛒</span><span class="dr-t"><b>Prêt à commander ?</b><small>${n?`${n} article${n>1?'s':''} sur la liste · Leclerc Drive`:'Direction le Leclerc Drive'}</small></span><span class="dr-go">Y aller →</span></a>`;
+}
+/* petit effet au toucher (le lien s'ouvre normalement dans un nouvel onglet) */
+document.addEventListener('click',e=>{
+  const a=e.target.closest&&e.target.closest('a.drive,a.driverow');
+  if(a){a.classList.add('go');setTimeout(()=>a.classList.remove('go'),1400)}
+});
 
 /* ---------- Base locale (aperçu hors partage) ---------- */
 function localDb(){
@@ -600,7 +648,8 @@ function Home(){
   const wl=S.wishes.filter(w=>!w.done).sort((a,b)=>a.ts-b.ts).slice(0,3);
   const wishTile=`<div class="tile wish span2"><button class="wl" data-act="goto" data-tab="us" data-sub="envies">${wl.length?wl.map(w=>`<span class="pill" style="--c:${cv(w.by)}">${KE(w.kind)} ${esc(w.text.length>22?w.text.slice(0,22)+'…':w.text)}</span>`).join(''):'<span class="big">Vos envies</span><div class="sm">Restos, films, voyages : notez-les ici</div>'}</button><button class="dice" data-act="draw" aria-label="Tirer une envie au sort">🎲</button></div>`;
 
-  return head(`${greet()}${me&&me.name?', '+me.name:''}`)+hero+quickHtml+`<div class="week">${strip}</div><div class="bento">${menuTile}${shopTile}${cashTile}${noteTile}${wishTile}</div>`;
+  const driveT=driveTile(pending,anim);
+  return head(`${greet()}${me&&me.name?', '+me.name:''}`)+hero+quickHtml+`<div class="week">${strip}</div><div class="bento">${menuTile}${driveT}${shopTile}${cashTile}${noteTile}${wishTile}</div>`;
 }
 
 const eur0=new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});
@@ -624,7 +673,7 @@ function Lists(){
   }).join('');
   const sub=todo.length?`${todo.length} à faire`:its.length?'Tout est fait 🎉':'Liste vide';
   return head('Listes')+`<div class="chips covers">${covers}<button class="cover add" data-act="listSheet"><span class="ce">＋</span><b>Nouvelle liste</b></button></div>
-  <section class="lhead" style="--c:${cv(cur.by)}"><span class="lh-e">${esc(cur.emoji||'📝')}</span><div class="lh-t"><h2>${esc(cur.title)}</h2><p>${sub}</p></div><div class="ringw sm">${ring(done.length,its.length,false)}<span class="rn">${pct}%</span></div><button class="iconbtn" data-act="listSheet" data-id="${cur.id}" aria-label="Options de la liste">${ic('more')}</button></section>
+  <section class="lhead" style="--c:${cv(cur.by)}"><span class="lh-e">${esc(cur.emoji||'📝')}</span><div class="lh-t"><h2>${esc(cur.title)}</h2><p>${sub}</p></div><div class="ringw sm">${ring(done.length,its.length,false)}<span class="rn">${pct}%</span></div><button class="iconbtn" data-act="listSheet" data-id="${cur.id}" aria-label="Options de la liste">${ic('more')}</button></section>${/course/i.test(cur.title)?driveRow(todo.length):''}
   ${todo.length?`<div class="group">${todo.map(row).join('')}</div>`:`<p class="muted" style="margin:6px 4px 0">${its.length?'Plus rien à faire ici.':'Ajoutez un premier élément ci-dessous.'}</p>`}
   <div class="addbar"><input data-keep="add-item" data-enter="addItem" placeholder="Ajouter à « ${esc(cur.title)} »" enterkeyhint="done" autocomplete="off"><button data-act="addItem" aria-label="Ajouter">＋</button></div>
   ${done.length?`<p class="subhead">Fait</p><div class="group">${done.map(row).join('')}</div>`:''}`;
