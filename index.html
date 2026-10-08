@@ -537,11 +537,6 @@ const KINDS=[['resto','🍽️','Resto'],['film','🎬','Film'],['lieu','📍','
 /* Leclerc Drive : changez l'adresse ici si vous changez de magasin */
 const DRIVE_URL='https://m-courses.leclercdrive.fr/magasin-997371-000009-paris';
 const DRIVE_PHRASES=['Le frigo a faim, le chariot vous attend.','Un clic, et les courses sont dans le coffre.','Mission ravitaillement : 3, 2, 1…','Pas de queue, pas de stress.','Panier plein, cœur content.','Votre chariot s’impatiente.','Chauffeur, au drive, et que ça roule !','Les pâtes ne vont pas s’acheter toutes seules.','Qui commande ce soir ? Vous deux, bien sûr.','Direction le rayon des bonnes idées.'];
-function driveTile(pending,anim){
-  const day=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/864e5);
-  const phrase=pending>0?`${pending} article${pending>1?'s':''} sur la liste : on fonce !`:DRIVE_PHRASES[day%DRIVE_PHRASES.length];
-  return `<a class="tile drive span2 ${anim?'fresh':''}" href="${DRIVE_URL}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir Leclerc Drive dans un nouvel onglet"><span class="drive-road" aria-hidden="true"><span class="cart">🛒${pending>0?`<i class="badge">${pending>99?'99+':pending}</i>`:''}</span><span class="pin">📍</span></span><span class="drive-body"><span><b>Direction le drive</b><span class="drive-sub">${esc(phrase)}</span></span><span class="drive-go">Y aller ${ic('chev',18)}</span></span></a>`;
-}
 function driveRow(n){
   return `<a class="driverow" href="${DRIVE_URL}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir Leclerc Drive dans un nouvel onglet"><span class="dr-cart" aria-hidden="true">🛒</span><span class="dr-t"><b>Prêt à commander ?</b><small>${n?`${n} article${n>1?'s':''} sur la liste · Leclerc Drive`:'Direction le Leclerc Drive'}</small></span><span class="dr-go">Y aller →</span></a>`;
 }
@@ -629,9 +624,6 @@ function ring(done,total,anim){
 }
 function Home(){
   const t=todayStr(),since=metaSince(),me=P(ME),o=S.people.find(p=>p.id!==ME),oid=otherId();
-  const allLoaded=Object.keys(S).every(k=>loaded[k]);
-  if(allLoaded&&!ui.homeTimer)ui.homeTimer=setTimeout(()=>{ui.homeDone=true},1500);
-  const anim=!ui.homeDone;
 
   /* Bloc principal */
   const next=S.events.filter(e=>e.date>=t).sort(byDT)[0];
@@ -652,31 +644,6 @@ function Home(){
   const quick=[['💶','Dépense','expSheet',''],['📅','Agenda','eventSheet',`data-date="${t}"`],['💌','Mot doux','noteSheet',''],['✨','Envie','wishSheet','']];
   const quickHtml=`<div class="quick">${quick.map(([e,l,a,x])=>`<button data-act="${a}" ${x}><span>${e}</span>${l}</button>`).join('')}</div>`;
 
-  /* Bande des 7 prochains jours */
-  let strip='';
-  for(let i=0;i<7;i++){
-    const d=addDays(t,i),evs=S.events.filter(e=>e.date===d).slice(0,3);
-    const dow=parse(d).toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','').slice(0,3);
-    strip+=`<button class="wd ${i===0?'today':''}" data-act="gotoDay" data-date="${d}" aria-label="${esc(fmtLong(d))}"><span>${dow}</span><b>${parse(d).getDate()}</b><span class="dots">${evs.map(e=>`<i style="--c:${cv(e.by)}"></i>`).join('')}</span></button>`;
-  }
-
-  /* Menu du jour */
-  const midi=S.meals.find(m=>m.id===t+'_midi'),soir=S.meals.find(m=>m.id===t+'_soir');
-  const pane=(cls,l,m)=>`<span class="pane ${cls}"><span class="pl">${l}</span><b>${m&&m.text?esc(m.text):'<i>Pas encore choisi</i>'}</b></span>`;
-  const menuTile=`<button class="tile menu span2" data-act="goto" data-tab="agenda" data-sub="menu">${pane('noon','☀️ Ce midi',midi)}${pane('night','🌙 Ce soir',soir)}</button>`;
-
-  /* Courses */
-  const shopLists=S.lists.filter(l=>/course/i.test(l.title));
-  const ids=new Set((shopLists.length?shopLists:S.lists).map(l=>l.id));
-  const its=S.items.filter(i=>ids.has(i.listId)),pending=its.filter(i=>!i.done).length;
-  const shopTile=`<button class="tile shop" data-act="goto" data-tab="lists" ${shopLists[0]?`data-list="${shopLists[0].id}"`:''}><div class="ringw">${ring(its.length-pending,its.length,anim)}<span class="rn">${pending}</span></div><div><div class="big">${pending?(pending>1?'articles à acheter':'article à acheter'):its.length?'Tout est pris':'Aucune course'}</div><div class="sm">${its.length?`${its.length-pending} sur ${its.length} cochés`:'Créez une liste'}</div></div></button>`;
-
-  /* Comptes */
-  const n=net(S.expenses),abs=Math.abs(n),quittes=abs<0.005;
-  const pc=quittes?0:Math.max(8,Math.min(50,abs/100*50));
-  const fill=quittes?'':n>0?`<i class="fill l" style="width:${pc}%;background:${cv(ME)}"></i>`:`<i class="fill r" style="width:${pc}%;background:${cv(oid)}"></i>`;
-  const cashTile=`<button class="tile cash" data-act="goto" data-tab="money"><div><div class="gends">${avatar(ME)}${avatar(oid)}</div><div class="gauge"><i class="mid"></i>${fill}</div></div><div><div class="big">${quittes?'Quittes':eur.format(abs)}</div><div class="sm">${quittes?'Rien à rembourser':n>0?`${esc(nameOf(oid))} te doit`:`Tu dois à ${esc(nameOf(oid))}`}</div></div></button>`;
-
   /* Mot doux */
   const lastNote=S.notes.filter(x=>x.by!==ME&&!isLocked(x)).sort((a,b)=>b.ts-a.ts)[0];
   const sealed=S.notes.filter(isLocked).sort((a,b)=>a.openAt.localeCompare(b.openAt))[0];
@@ -690,9 +657,8 @@ function Home(){
   const wl=S.wishes.filter(w=>!w.done).sort((a,b)=>a.ts-b.ts).slice(0,3);
   const wishTile=`<div class="tile wish span2"><button class="wl" data-act="goto" data-tab="us" data-sub="envies">${wl.length?wl.map(w=>`<span class="pill" style="--c:${cv(w.by)}">${KE(w.kind)} ${esc(w.text.length>22?w.text.slice(0,22)+'…':w.text)}</span>`).join(''):'<span class="big">Vos envies</span><div class="sm">Restos, films, voyages : notez-les ici</div>'}</button><button class="dice" data-act="draw" aria-label="Tirer une envie au sort">🎲</button></div>`;
 
-  const driveT=driveTile(pending,anim);
   const photoT=photoTile();
-  return head(`${greet()}${me&&me.name?', '+me.name:''}`)+hero+`<div class="photo-wrap">${photoT}</div>`+quickHtml+`<div class="week">${strip}</div><div class="bento">${menuTile}${driveT}${shopTile}${cashTile}${noteTile}${wishTile}</div>`;
+  return head(`${greet()}${me&&me.name?', '+me.name:''}`)+hero+`<div class="photo-wrap">${photoT}</div>`+quickHtml+`<div class="bento">${noteTile}${wishTile}</div>`;
 }
 
 const eur0=new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});
