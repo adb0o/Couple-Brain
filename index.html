@@ -444,6 +444,20 @@ a.drive,a.driverow{color:inherit;text-decoration:none;-webkit-user-select:none;u
 .v-bot .yr{display:inline-block;background:#fff;color:#1D1A2B;font-weight:700;font-size:13px;padding:4px 10px;border-radius:99px;margin-bottom:8px}
 @media (prefers-reduced-motion: reduce){.photow img.ph{transition:none}}
 
+
+/* ===== Synchro Calendrier iPhone ===== */
+.syncc{background:color-mix(in srgb,var(--ok) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--ok) 28%,var(--line));border-radius:20px;padding:14px;margin:0 0 16px}
+.syncc .sc-top{display:flex;align-items:center;gap:12px}
+.syncc .sc-e{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:21px;background:var(--surface);border:1px solid var(--line);flex:none}
+.syncc .sc-t{min-width:0}
+.syncc .sc-t b{display:block;font:700 17px var(--f-d)}
+.syncc .sc-t small{display:block;color:var(--muted);font-size:13px;line-height:1.3}
+.syncc .sc-b{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.syncc .sc-b .btn{min-width:0;padding:0 10px;line-height:1.15;text-align:center;min-height:46px}
+.sheet-actions.col{flex-direction:column}
+.sheet-actions.col .btn{width:100%}
+.urlbox{display:block;padding:12px 14px;border-radius:14px;background:var(--surface);border:1.5px dashed color-mix(in srgb,var(--muted) 50%,transparent);font:600 12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;-webkit-user-select:all;user-select:all}
+
 /* Barre d'onglets */
 #tabs{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;display:flex;background:var(--surface);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:20}
 #tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;color:var(--muted);font-size:11.5px;font-weight:600;text-align:center}
@@ -528,10 +542,10 @@ const IC={
 const ic=(n,s=22)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 
 /* ---------- État ---------- */
-const S={people:[],lists:[],items:[],pots:[],expenses:[],notes:[],events:[],meals:[],wishes:[],meta:[],photos:[]};
+const S={people:[],lists:[],items:[],pots:[],expenses:[],notes:[],events:[],meals:[],wishes:[],meta:[],photos:[],synckeys:[],inbox:[]};
 const loaded={};
 let db=null,ME='moi',SHARED=false,READONLY=false,onboarded=false,drawTimer=null,drawId=null;
-let auth=null,fs=null,M=null,AM=null,CID=null,COUPLE=null,USER_EMAIL='',UNSUBS=[],gate='loading';
+let FBCFG=null,auth=null,fs=null,M=null,AM=null,CID=null,COUPLE=null,USER_EMAIL='',UNSUBS=[],gate='loading';
 const ui={photoIdx:0,viewIdx:0,photoPauseUntil:0,photoFocus:null,authMode:'login',gateErr:'',email:'',tab:'home',list:null,pot:'general',agenda:'cal',us:'mots',month:todayStr().slice(0,7),sel:todayStr(),weekStart:mondayOf(todayStr()),wishKind:'all'};
 const KINDS=[['resto','🍽️','Resto'],['film','🎬','Film'],['lieu','📍','Lieu'],['autre','✨','Autre']];
 /* Leclerc Drive : changez l'adresse ici si vous changez de magasin */
@@ -630,7 +644,7 @@ function Home(){
   let heroT,hc='var(--c1)';
   if(next){
     const n=diffDays(t,next.date);
-    hc=cv(next.by);
+    hc=evColor(next);
     const when=n===0?'c’est aujourd’hui.':n===1?'c’est demain.':`c’est dans ${n} jours.`;
     heroT=`<button class="hero-t" data-act="goto" data-tab="agenda"><span class="hero-title">${esc(next.title)},</span><span class="hero-when">${when}</span></button>`;
   }else{
@@ -730,18 +744,18 @@ function Cal(){
   let cells='';
   for(let i=0;i<offset;i++)cells+='<span></span>';
   for(let d=1;d<=days;d++){
-    const ds=`${y}-${pad(m)}-${pad(d)}`,evs=S.events.filter(e=>e.date===ds).slice(0,3);
-    cells+=`<button class="day ${ds===ui.sel?'sel':''} ${ds===t?'today':''}" data-act="selDay" data-date="${ds}" aria-label="${esc(fmtLong(ds))}">${d}<span class="dots">${evs.map(e=>`<i style="--c:${cv(e.by)}"></i>`).join('')}</span></button>`;
+    const ds=`${y}-${pad(m)}-${pad(d)}`,evs=evOn(ds).slice(0,3);
+    cells+=`<button class="day ${ds===ui.sel?'sel':''} ${ds===t?'today':''}" data-act="selDay" data-date="${ds}" aria-label="${esc(fmtLong(ds))}">${d}<span class="dots">${evs.map(e=>`<i style="--c:${evColor(e)}"></i>`).join('')}</span></button>`;
   }
-  const dayEv=S.events.filter(e=>e.date===ui.sel).sort(byDT);
+  const dayEv=evOn(ui.sel).sort(byDT);
   const upcoming=S.events.filter(e=>e.date>=t&&e.date!==ui.sel).sort(byDT).slice(0,6);
   const evRow=e=>{
     const n=diffDays(t,e.date);
     const cd=n===0?['Aujourd’hui','now']:n===1?['Demain','soon']:n>1&&n<=14?[`dans ${n} j`,'soon']:n>1?[`dans ${n} j`,'']:[`il y a ${-n} j`,''];
-    return `<button class="ev2" data-act="eventSheet" data-id="${e.id}" style="--c:${cv(e.by)}"><span class="dblock"><b>${parse(e.date).getDate()}</b><small>${esc(monthShort(e.date))}</small></span><span class="m"><b>${esc(e.title)}</b><small>${e.time?esc(e.time)+' · ':''}${esc(nameOf(e.by))}</small></span><span class="cd2 ${cd[1]}">${cd[0]}</span></button>`;
+    return `<button class="ev2" data-act="eventSheet" data-id="${e.id}" style="--c:${evColor(e)}"><span class="dblock"><b>${parse(e.date).getDate()}</b><small>${esc(monthShort(e.date))}</small></span><span class="m"><b>${esc(e.title)}</b><small>${e.time?esc(e.time)+' · ':''}${esc(evWho(e))}${e.endDate&&e.endDate>e.date?' · jusqu’au '+esc(fmtShort(e.endDate)):''}</small></span><span class="cd2 ${cd[1]}">${cd[0]}</span></button>`;
   };
   const title=new Date(y,m-1,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-  return `<div class="monthbar"><button class="iconbtn" data-act="month" data-d="-1" aria-label="Mois précédent">${ic('left')}</button><h2>${esc(title)}</h2><button class="iconbtn" data-act="month" data-d="1" aria-label="Mois suivant">${ic('chev')}</button></div>
+  return syncCard()+`<div class="monthbar"><button class="iconbtn" data-act="month" data-d="-1" aria-label="Mois précédent">${ic('left')}</button><h2>${esc(title)}</h2><button class="iconbtn" data-act="month" data-d="1" aria-label="Mois suivant">${ic('chev')}</button></div>
   <div class="group pad"><div class="dow">${['L','M','M','J','V','S','D'].map(d=>`<span>${d}</span>`).join('')}</div><div class="grid">${cells}</div></div>
   <div class="sectionbar" style="margin-top:22px"><h2 class="capfirst" style="font-size:19px">${esc(fmtLong(ui.sel))}</h2><button class="btn sm primary" data-act="eventSheet" data-date="${ui.sel}">Ajouter</button></div>
   ${dayEv.length?`<div class="group">${dayEv.map(evRow).join('')}</div>`:'<p class="muted" style="margin:6px 0 0">Rien ce jour-là.</p>'}
@@ -980,11 +994,18 @@ ACT.month=el=>{const [y,m]=ui.month.split('-').map(Number);const d=new Date(y,m-
 ACT.selDay=el=>{ui.sel=el.dataset.date;render()};
 ACT.eventSheet=el=>{
   const id=el.dataset.id,e=id?S.events.find(x=>x.id===id):null;
+  if(e&&e.src==='ios'){
+    const when=e.time?` · ${e.time}${e.endTime?'–'+e.endTime:''}`:' · toute la journée';
+    openSheet(e.title,`<p class="muted" style="margin:6px 0 0">${esc(fmtLong(e.date))}${e.endDate&&e.endDate>e.date?' → '+esc(fmtLong(e.endDate)):''}${esc(when)}</p>
+      <p class="hint" style="margin-top:14px">📅 Cet événement vient de votre app Calendrier (calendrier titanis). Pour le modifier ou le supprimer, faites-le dans l’app Calendrier : il se mettra à jour ici à la prochaine synchronisation.</p>
+      <div class="sheet-actions"><button class="btn primary" data-act="closeSheet">Fermer</button></div>`);
+    return;
+  }
   const date=(e&&e.date)||el.dataset.date||ui.sel;
   openSheet(e?'Modifier le rendez-vous':'Nouveau rendez-vous',`
     <label for="ev-title">Titre</label><input id="ev-title" value="${esc(e?e.title:'')}" maxlength="80" placeholder="Dîner chez Sam, vol pour Lisbonne…">
     <div class="two"><div><label for="ev-date">Date</label><input id="ev-date" type="date" value="${date}"></div><div><label for="ev-time">Heure</label><input id="ev-time" type="time" value="${esc(e&&e.time||'')}"></div></div>
-    <div class="sheet-actions">${e?`<button class="btn danger" data-act="delEvent" data-id="${id}">Supprimer</button>`:''}<button class="btn primary" data-act="saveEvent" data-id="${id||''}">Enregistrer</button></div>`);
+    <div class="sheet-actions">${e?`<button class="btn danger" data-act="delEvent" data-id="${id}">Supprimer</button><button class="btn" data-act="icsOne" data-id="${id}">Ajouter à Calendrier</button>`:''}<button class="btn primary" data-act="saveEvent" data-id="${id||''}">Enregistrer</button></div>`);
   if(!e)setTimeout(()=>$('#ev-title').focus(),50);
 };
 ACT.saveEvent=async el=>{
@@ -1197,6 +1218,186 @@ ACT.photoDel=el=>arm(el,async()=>{const id=el.dataset.id;ACT.photoClose();ui.pho
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&v.classList.contains('open'))ACT.photoClose()});
 })();
 
+/* ---------- Calendrier iPhone ↔ Nous deux ---------- */
+const evOn=ds=>S.events.filter(e=>e.date<=ds&&ds<=(e.endDate||e.date));
+const evColor=e=>e.src==='ios'?'var(--ok)':cv(e.by);
+const evWho=e=>e.src==='ios'?'Calendrier iPhone':nameOf(e.by);
+const norm=x=>String(x||'').trim().toLowerCase().replace(/\s+/g,' ');
+function cyrb53(str,seed=0){
+  let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;
+  for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}
+  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);
+  h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+  return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);
+}
+const ago=ts=>{
+  const m=Math.round((Date.now()-ts)/60000);
+  if(m<2)return 'à l’instant';if(m<60)return `il y a ${m} min`;if(m<1440)return `il y a ${Math.round(m/60)} h`;
+  return `le ${fmtShort(ymd(new Date(ts)))}`;
+};
+async function copyText(text,el){
+  try{await navigator.clipboard.writeText(text);toast('Copié ✓');return}catch(e){}
+  try{
+    const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');
+    ta.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(ta);
+    ta.focus();ta.select();ta.setSelectionRange(0,text.length);const ok=document.execCommand('copy');document.body.removeChild(ta);
+    if(ok){toast('Copié ✓');return}
+  }catch(e){}
+  if(el){try{const r=document.createRange();r.selectNodeContents(el);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);toast('Texte sélectionné : touchez « Copier »')}catch(e){}}
+  else toast('Copie impossible : sélectionnez le texte à la main.');
+}
+
+/* --- Réception : le Raccourci iPhone dépose les événements de « titanis » dans la boîte de dépôt --- */
+function parsePayload(text){
+  const out=[],D=/^\d{4}-\d{2}-\d{2}$/,T=/^\d{2}:\d{2}$/;
+  String(text||'').split(/\r?\n/).forEach(line=>{
+    const raw=line.split('###');
+    if(raw.length<6)return;
+    const title=raw.slice(0,raw.length-5).join('###').trim();
+    const [sd,st,ed,et,ad]=raw.slice(-5).map(x=>x.trim());
+    if(!title||!D.test(sd))return;
+    const allDay=/^(oui|yes|true|vrai|1)$/i.test(ad||'');
+    const time=(allDay||!T.test(st))?'':st;
+    let endDate=D.test(ed)?ed:sd,endTime=(allDay||!T.test(et))?'':et;
+    if(endDate<sd)endDate=sd;
+    if(allDay&&endDate>sd&&et==='00:00')endDate=addDays(endDate,-1);
+    out.push({title:title.slice(0,120),date:sd,time,endDate,endTime,allDay});
+  });
+  return out;
+}
+async function applyBatch(items){
+  const today=todayStr(),horizon=addDays(today,60);
+  const mine=S.events.filter(e=>e.src==='ios'),appEv=S.events.filter(e=>e.src!=='ios');
+  const keep=new Set();let written=0;
+  for(const it of items){
+    // un événement créé dans l'app puis envoyé au Calendrier ne doit pas revenir en double
+    if(appEv.some(e=>norm(e.title)===norm(it.title)&&e.date===it.date&&(e.time||'')===it.time))continue;
+    const id='ios_'+cyrb53([it.title,it.date,it.time,it.endDate,it.endTime,it.allDay].join('|'));
+    keep.add(id);
+    const cur=mine.find(e=>e.id===id);
+    if(cur)continue; // identique : même identifiant = même contenu
+    await put('events',id,{title:it.title,date:it.date,time:it.time,endDate:it.endDate,endTime:it.endTime,allDay:it.allDay,src:'ios',by:'ios',ts:Date.now()});
+    written++;
+  }
+  for(const e of mine){
+    if(!keep.has(e.id)&&e.date>=today&&e.date<=horizon){await del('events',e.id);written++}
+  }
+  return written;
+}
+let ingesting=false;
+async function ingestInbox(){
+  if(ingesting||gate!=='app'||!SHARED||!loaded.events||!loaded.inbox||!CID)return;
+  for(const d of S.inbox){
+    if(typeof d.payload!=='string')continue;
+    const k='nd-ing:'+CID+':'+d.id,h=cyrb53(d.payload);
+    let seen=null;try{seen=localStorage.getItem(k)}catch(e){}
+    if(seen===h)continue;
+    ingesting=true;
+    try{
+      await applyBatch(parsePayload(d.payload));
+      try{localStorage.setItem(k,h);localStorage.setItem('nd-ing-at:'+CID,String(Date.now()))}catch(e){}
+    }catch(e){console.error(e)}
+    finally{ingesting=false}
+    render();setTimeout(ingestInbox,400);
+    return;
+  }
+}
+function syncUrl(key){
+  if(!FBCFG||!CID||!key)return '';
+  return `https://firestore.googleapis.com/v1/projects/${FBCFG.projectId}/databases/(default)/documents/couples/${CID}/inbox/${key}?key=${FBCFG.apiKey}`;
+}
+function genKey(){const a=new Uint8Array(32);crypto.getRandomValues(a);return Array.from(a,x=>CODE_CHARS[x%32]).join('')}
+function syncCard(){
+  const key=S.synckeys[0],n=S.events.filter(e=>e.src==='ios').length;
+  let at=0;try{at=+localStorage.getItem('nd-ing-at:'+CID)||0}catch(e){}
+  const status=!SHARED?'Disponible une fois Firebase configuré.':!key?'Pas encore relié : touchez « Recevoir ».':`${n} événement${n>1?'s':''} reçu${n>1?'s':''}${at?' · mis à jour '+ago(at):' · rien reçu pour l’instant'}`;
+  return `<div class="syncc"><div class="sc-top"><span class="sc-e" aria-hidden="true">📅</span><div class="sc-t"><b>Calendrier iPhone</b><small>${esc(status)}</small></div></div><div class="sc-b"><button class="btn sm" data-act="exportAll">Envoyer vers Calendrier</button><button class="btn sm" data-act="syncSheet">Recevoir depuis Calendrier</button></div></div>`;
+}
+ACT.syncSheet=(el,ev,keyOverride)=>{
+  if(!SHARED){toast('Disponible une fois Firebase configuré.');return}
+  const key=(typeof keyOverride==='string'&&keyOverride)||(S.synckeys[0]&&S.synckeys[0].id);
+  let at=0;try{at=+localStorage.getItem('nd-ing-at:'+CID)||0}catch(e){}
+  const n=S.events.filter(e=>e.src==='ios').length;
+  openSheet('Recevoir depuis Calendrier',`
+    <p class="muted" style="margin:6px 0 0">Un Raccourci de votre iPhone envoie à Nous deux les rendez-vous du calendrier <b>titanis</b> (60 prochains jours). Aucun mot de passe : seule cette clé secrète permet l’envoi.</p>
+    ${key?`<label>Adresse à coller dans le Raccourci</label><code class="urlbox" id="sync-url">${esc(syncUrl(key))}</code>
+      <div class="btnrow" style="margin:10px 0 0"><button class="btn sm" data-act="copySyncUrl">Copier l’adresse</button></div>
+      <p class="hint">${at?`Dernière réception sur cet iPhone : ${esc(ago(at))} · ${n} événement${n>1?'s':''} importé${n>1?'s':''}.`:'Rien reçu pour l’instant : lancez le Raccourci pour tester.'}</p>
+      <div class="sheet-actions"><button class="btn" data-act="renewKey">Renouveler la clé</button><button class="btn danger" data-act="delKey">Supprimer la clé</button></div>`
+    :`<div class="sheet-actions"><button class="btn primary" data-act="makeKey">Créer ma clé de synchronisation</button></div>`}
+    <p class="hint" style="margin-top:14px">Gardez cette adresse pour vous : quiconque la possède peut ajouter des rendez-vous à votre agenda. Si elle fuite, renouvelez la clé.</p>`);
+};
+ACT.makeKey=async()=>{const k=genKey();await put('synckeys',k,{owner:ME,createdAt:Date.now()});ACT.syncSheet(null,null,k)};
+ACT.renewKey=el=>arm(el,async()=>{
+  const old=S.synckeys.map(x=>x.id);
+  for(const o of old){await del('synckeys',o);await del('inbox',o)}
+  await ACT.makeKey();
+});
+ACT.delKey=el=>arm(el,async()=>{
+  for(const o of S.synckeys.map(x=>x.id)){await del('synckeys',o);await del('inbox',o)}
+  closeSheet();toast('Clé supprimée : le Raccourci ne peut plus écrire.');
+});
+ACT.copySyncUrl=()=>copyText($('#sync-url').textContent,$('#sync-url'));
+
+/* --- Envoi : fichiers .ics que l'iPhone propose d'ajouter au Calendrier --- */
+const icsEsc=t=>String(t||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+function icsFold(line){
+  const enc=new TextEncoder();
+  if(enc.encode(line).length<=75)return line;
+  let out='',cur='',bytes=0,first=true;
+  for(const ch of line){
+    const b=enc.encode(ch).length,lim=first?75:74;
+    if(bytes+b>lim){out+=cur+'\r\n ';cur='';bytes=0;first=false}
+    cur+=ch;bytes+=b;
+  }
+  return out+cur;
+}
+const icsDt=(d,t)=>d.replace(/-/g,'')+(t?'T'+t.replace(':','')+'00':'');
+function plusMinutes(d,t,m){const dt=new Date(`${d}T${t}:00`);dt.setMinutes(dt.getMinutes()+m);return{d:ymd(dt),t:pad(dt.getHours())+':'+pad(dt.getMinutes())}}
+function buildICS(list){
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''),seq=Math.floor(Date.now()/1000);
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Nous deux//FR','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  list.forEach(e=>{
+    L.push('BEGIN:VEVENT',`UID:nd-${e.id}@nous-deux`,`DTSTAMP:${stamp}`,`SEQUENCE:${seq}`,`SUMMARY:${icsEsc(e.title)}`,
+      `DESCRIPTION:${icsEsc('ND:'+e.id+'\nAjouté depuis Nous deux')}`);
+    if(!e.time)L.push(`DTSTART;VALUE=DATE:${icsDt(e.date)}`,`DTEND;VALUE=DATE:${icsDt(addDays(e.date,1))}`);
+    else{const en=plusMinutes(e.date,e.time,60);L.push(`DTSTART:${icsDt(e.date,e.time)}`,`DTEND:${icsDt(en.d,en.t)}`)}
+    L.push('END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  return L.map(icsFold).join('\r\n')+'\r\n';
+}
+let ICS=null;
+function icsSheet(title,text,filename,n){
+  if(ICS&&ICS.url)URL.revokeObjectURL(ICS.url);
+  const file=new File([text],filename,{type:'text/calendar'}),url=URL.createObjectURL(file);
+  ICS={file,url};
+  const can=!!(navigator.canShare&&navigator.canShare({files:[file]}));
+  let i=0;const num=()=>(++i)+' · ';
+  openSheet(title,`<p class="muted" style="margin:6px 0 0">${n} rendez-vous prêt${n>1?'s':''}. Quand l’iPhone demande dans quel calendrier les ajouter, choisissez <b>titanis</b>.</p>
+    <div class="sheet-actions col">
+      ${can?`<button class="btn primary" data-act="icsShare">${num()}Partager vers Calendrier</button>`:''}
+      <a class="btn ${can?'':'primary'}" href="${url}" target="_blank" rel="noopener">${num()}Ouvrir le fichier</a>
+      <a class="btn" href="${url}" download="${esc(filename)}">${num()}Télécharger</a>
+    </div>
+    <p class="hint">Essayez dans l’ordre : si une méthode n’ouvre pas Calendrier, passez à la suivante.</p>`);
+}
+ACT.icsShare=async()=>{
+  if(!ICS)return;
+  try{await navigator.share({files:[ICS.file],title:'Nous deux'})}
+  catch(e){if(!e||e.name!=='AbortError')toast('Le partage n’a pas fonctionné : essayez l’option suivante.')}
+};
+ACT.icsOne=el=>{
+  const e=S.events.find(x=>x.id===el.dataset.id);if(!e)return;
+  const slug=(e.title||'rdv').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,30)||'rdv';
+  icsSheet('Ajouter à Calendrier',buildICS([e]),`nous-deux-${slug}.ics`,1);
+};
+ACT.exportAll=()=>{
+  const list=S.events.filter(e=>e.src!=='ios'&&e.date>=todayStr()).sort(byDT);
+  if(!list.length){toast('Aucun rendez-vous à venir à envoyer.');return}
+  icsSheet('Envoyer vers Calendrier',buildICS(list),'nous-deux.ics',list.length);
+};
+
 /* ---------- Écrans de connexion ---------- */
 function logoSvg(){
   return `<svg class="gate-logo" viewBox="0 0 230 150" aria-hidden="true"><defs><clipPath id="gl"><circle cx="82" cy="75" r="64"/></clipPath></defs><circle cx="82" cy="75" r="64" style="fill:var(--c1)"/><circle cx="148" cy="75" r="64" style="fill:var(--c2)"/><circle cx="148" cy="75" r="64" clip-path="url(#gl)" style="fill:var(--ink)"/><g transform="translate(106 66) scale(.75)" style="fill:var(--bg)"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0112 7.6 4.3 4.3 0 0119.5 10c0 5.4-7.5 10-7.5 10z"/></g></svg>`;
@@ -1283,6 +1484,7 @@ ACT.shareCode=async()=>{
 /* ---------- Données ---------- */
 function onData(name){
   render();
+  if(name==='events'||name==='inbox')ingestInbox();
   if(name==='people'&&loaded.people&&!onboarded&&!P(ME)){onboarded=true;profileSheet(true)}
 }
 function subscribe(){
@@ -1334,6 +1536,7 @@ async function onUser(user){
 (async()=>{
   render();
   const firebaseConfig=await loadConfig();
+  FBCFG=firebaseConfig;
   if(!firebaseConfig){
     db=localDb();SHARED=false;ME='moi';gate='app';subscribe();render();return;
   }
