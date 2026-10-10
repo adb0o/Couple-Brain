@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F7F5FB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#FFF6EC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#14121C" media="(prefers-color-scheme: dark)">
 <meta name="format-detection" content="telephone=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Nous deux">
+<meta name="apple-mobile-web-app-title" content="Couple Brain">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Nous deux</title>
+<title>Couple Brain</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#F7F5FB;--surface:#FFFFFF;--ink:#1D1A2B;--muted:#6B6780;--line:#E6E2EF;
@@ -486,6 +486,42 @@ a.drive,a.driverow{color:inherit;text-decoration:none;-webkit-user-select:none;u
 .hint{color:var(--muted);font-size:13px;margin:6px 0 0}
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:14px;font-weight:500;z-index:60;max-width:90%;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
+
+/* ===== Couple Brain : piste 3 « Duo audacieux » ===== */
+:root{--bg:#FFF6EC;--surface:#FFFDF9;--ink:#14121C;--muted:#6A6477;--line:#EADFD0;--c1:#3B3FD8;--c2:#FF7A3D;--onc1:#FFF6EC;--onc2:#14121C;--on:#FFF6EC;--ok:#1F7A57;--blk:#14121C;--hero:#3B3FD8;
+  --f-d:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;--f-b:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#14121C;--surface:#201C2F;--ink:#FFF6EC;--muted:#B3AAC4;--line:#342F49;--c1:#8B8FFF;--c2:#FF8F5C;--onc1:#14121C;--onc2:#14121C;--on:#14121C;--ok:#59C896;--blk:#2B2644;--hero:#3B3FD8}}
+:root[data-theme="dark"]{--bg:#14121C;--surface:#201C2F;--ink:#FFF6EC;--muted:#B3AAC4;--line:#342F49;--c1:#8B8FFF;--c2:#FF8F5C;--onc1:#14121C;--onc2:#14121C;--on:#14121C;--ok:#59C896;--blk:#2B2644;--hero:#3B3FD8}
+body{font-weight:500}
+h1,h2,h3{font-weight:800;letter-spacing:-.03em}
+.top h1{font-size:32px;font-weight:800}
+.av[style*="--c1"]{color:var(--onc1)}.av[style*="--c2"]{color:var(--onc2)}
+.item.done[style*="--c:var(--c2)"] .check::after,.wtile.done[style*="--c:var(--c2)"] .wt-chk::after{border-color:#14121C}
+.hero2{background:var(--hero);border:0;border-radius:32px;color:#FFF6EC}
+.hero2 .hero-title{color:#FFF6EC;font-weight:800;letter-spacing:-.03em}
+.hero2 .hero-when,.hero2 .hero-when.muted{color:#FFD9BF;font-weight:700}
+.hero2 .since{background:#FF7A3D;color:#14121C;border-radius:14px;padding:8px 14px;max-width:134px;transform:rotate(-4deg);font-weight:700}
+.hero2 .since b,.hero2 .since button{color:#14121C}
+.lens circle{stroke:#FFF6EC;stroke-width:5}
+.hero2 .lens circle[stroke-dasharray]{stroke:#FFF6EC!important}
+.quick{gap:8px}
+.quick button{height:84px;border-radius:22px;justify-content:center;gap:2px;background:var(--c1);color:var(--onc1)}
+.quick button:nth-child(even){background:var(--c2);color:var(--onc2)}
+.quick button span,.quick button:active span{width:auto;height:auto;border:0;background:transparent;font-size:26px}
+.tile.photos{background:#fff;padding:10px;border-radius:8px;transform:rotate(-1.2deg);box-shadow:0 8px 0 rgba(20,18,28,.1);overflow:visible}
+.tile.photos::before{content:'';position:absolute;top:-11px;left:50%;width:76px;height:22px;margin-left:-38px;background:rgba(255,122,61,.7);transform:rotate(3deg);z-index:3}
+.photow{border-radius:4px}
+.tile.photos .ph-add{top:20px;right:20px}.tile.photos .ph-badge{left:20px;top:20px}
+.photo-empty{border-radius:28px}
+.tile.wish{background:var(--blk);color:#FFF6EC;border-color:transparent}
+.tile.wish .big,.tile.wish .sm{color:#FFF6EC}
+.tile.wish .pill{color:#FFF6EC;background:rgba(255,246,236,.14)}
+.dice{background:var(--c2);color:#14121C}
+#tabs{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:456px;background:var(--blk);border:0;border-radius:99px;padding:8px 10px;box-shadow:0 8px 24px rgba(20,18,28,.25)}
+#tabs button{height:50px;justify-content:center;border-radius:99px;color:#FFF6EC;padding:0}
+#tabs button.on{background:var(--c2);color:#14121C}
+#toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+#app{padding-bottom:132px}
 </style>
 </head>
 <body>
@@ -629,8 +665,8 @@ function heroArt(){
   return `<svg class="lens" viewBox="0 0 230 150" aria-hidden="true"><defs><clipPath id="lc"><circle cx="82" cy="85" r="64"/></clipPath></defs>
     <circle class="pop" cx="82" cy="85" r="64" style="fill:${ca}"/>${right}
     ${o?`<circle cx="148" cy="85" r="64" clip-path="url(#lc)" style="fill:var(--ink)"/><g transform="translate(106 76) scale(.75)" style="fill:var(--bg)"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0112 7.6 4.3 4.3 0 0119.5 10c0 5.4-7.5 10-7.5 10z"/></g>`:''}
-    <text x="50" y="97" text-anchor="middle" style="font:700 34px var(--f-d);fill:var(--on)">${esc(ini(ME))}</text>
-    <text x="181" y="97" text-anchor="middle" style="font:700 34px var(--f-d);fill:${o?'var(--on)':'var(--muted)'}">${o?esc(ini(o.id)):'?'}</text></svg>`;
+    <text x="50" y="97" text-anchor="middle" style="font:700 34px var(--f-d);fill:var(--on${colorKey(ME)})">${esc(ini(ME))}</text>
+    <text x="181" y="97" text-anchor="middle" style="font:700 34px var(--f-d);fill:${o?`var(--on${colorKey(o.id)})`:'#FFF6EC'}">${o?esc(ini(o.id)):'?'}</text></svg>`;
 }
 function ring(done,total,anim){
   const r=30,c=2*Math.PI*r,p=total?done/total:0;
@@ -1218,7 +1254,7 @@ ACT.photoDel=el=>arm(el,async()=>{const id=el.dataset.id;ACT.photoClose();ui.pho
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&v.classList.contains('open'))ACT.photoClose()});
 })();
 
-/* ---------- Calendrier iPhone ↔ Nous deux ---------- */
+/* ---------- Calendrier iPhone ↔ Couple Brain ---------- */
 const evOn=ds=>S.events.filter(e=>e.date<=ds&&ds<=(e.endDate||e.date));
 const evColor=e=>e.src==='ios'?'var(--ok)':cv(e.by);
 const evWho=e=>e.src==='ios'?'Calendrier iPhone':nameOf(e.by);
@@ -1319,7 +1355,7 @@ ACT.syncSheet=(el,ev,keyOverride)=>{
   let at=0;try{at=+localStorage.getItem('nd-ing-at:'+CID)||0}catch(e){}
   const n=S.events.filter(e=>e.src==='ios').length;
   openSheet('Recevoir depuis Calendrier',`
-    <p class="muted" style="margin:6px 0 0">Un Raccourci de votre iPhone envoie à Nous deux les rendez-vous du calendrier <b>titanis</b> (60 prochains jours). Aucun mot de passe : seule cette clé secrète permet l’envoi.</p>
+    <p class="muted" style="margin:6px 0 0">Un Raccourci de votre iPhone envoie à Couple Brain les rendez-vous du calendrier <b>titanis</b> (60 prochains jours). Aucun mot de passe : seule cette clé secrète permet l’envoi.</p>
     ${key?`<label>Adresse à coller dans le Raccourci</label><code class="urlbox" id="sync-url">${esc(syncUrl(key))}</code>
       <div class="btnrow" style="margin:10px 0 0"><button class="btn sm" data-act="copySyncUrl">Copier l’adresse</button></div>
       <p class="hint">${at?`Dernière réception sur cet iPhone : ${esc(ago(at))} · ${n} événement${n>1?'s':''} importé${n>1?'s':''}.`:'Rien reçu pour l’instant : lancez le Raccourci pour tester.'}</p>
@@ -1356,10 +1392,10 @@ const icsDt=(d,t)=>d.replace(/-/g,'')+(t?'T'+t.replace(':','')+'00':'');
 function plusMinutes(d,t,m){const dt=new Date(`${d}T${t}:00`);dt.setMinutes(dt.getMinutes()+m);return{d:ymd(dt),t:pad(dt.getHours())+':'+pad(dt.getMinutes())}}
 function buildICS(list){
   const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''),seq=Math.floor(Date.now()/1000);
-  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Nous deux//FR','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Couple Brain//FR','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
   list.forEach(e=>{
     L.push('BEGIN:VEVENT',`UID:nd-${e.id}@nous-deux`,`DTSTAMP:${stamp}`,`SEQUENCE:${seq}`,`SUMMARY:${icsEsc(e.title)}`,
-      `DESCRIPTION:${icsEsc('ND:'+e.id+'\nAjouté depuis Nous deux')}`);
+      `DESCRIPTION:${icsEsc('ND:'+e.id+'\nAjouté depuis Couple Brain')}`);
     if(!e.time)L.push(`DTSTART;VALUE=DATE:${icsDt(e.date)}`,`DTEND;VALUE=DATE:${icsDt(addDays(e.date,1))}`);
     else{const en=plusMinutes(e.date,e.time,60);L.push(`DTSTART:${icsDt(e.date,e.time)}`,`DTEND:${icsDt(en.d,en.t)}`)}
     L.push('END:VEVENT');
@@ -1371,22 +1407,10 @@ let ICS=null;
 function icsSheet(title,text,filename,n){
   if(ICS&&ICS.url)URL.revokeObjectURL(ICS.url);
   const file=new File([text],filename,{type:'text/calendar'}),url=URL.createObjectURL(file);
-  ICS={file,url};
-  const can=!!(navigator.canShare&&navigator.canShare({files:[file]}));
-  let i=0;const num=()=>(++i)+' · ';
-  openSheet(title,`<p class="muted" style="margin:6px 0 0">${n} rendez-vous prêt${n>1?'s':''}. Quand l’iPhone demande dans quel calendrier les ajouter, choisissez <b>titanis</b>.</p>
-    <div class="sheet-actions col">
-      ${can?`<button class="btn primary" data-act="icsShare">${num()}Partager vers Calendrier</button>`:''}
-      <a class="btn ${can?'':'primary'}" href="${url}" target="_blank" rel="noopener">${num()}Ouvrir le fichier</a>
-      <a class="btn" href="${url}" download="${esc(filename)}">${num()}Télécharger</a>
-    </div>
-    <p class="hint">Essayez dans l’ordre : si une méthode n’ouvre pas Calendrier, passez à la suivante.</p>`);
+  ICS={url};
+  openSheet(title,`<p class="muted" style="margin:6px 0 0">${n} rendez-vous prêt${n>1?'s':''}. Touchez le bouton, puis ouvrez le fichier téléchargé : l’iPhone propose de l’ajouter à Calendrier. Choisissez <b>titanis</b>.</p>
+    <div class="sheet-actions col"><a class="btn primary" href="${url}" download="${esc(filename)}">Télécharger</a></div>`);
 }
-ACT.icsShare=async()=>{
-  if(!ICS)return;
-  try{await navigator.share({files:[ICS.file],title:'Nous deux'})}
-  catch(e){if(!e||e.name!=='AbortError')toast('Le partage n’a pas fonctionné : essayez l’option suivante.')}
-};
 ACT.icsOne=el=>{
   const e=S.events.find(x=>x.id===el.dataset.id);if(!e)return;
   const slug=(e.title||'rdv').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,30)||'rdv';
@@ -1405,11 +1429,11 @@ function logoSvg(){
 function Gate(){
   const hint=iosHint();
   const err=hint+(ui.gateErr?`<div class="banner" role="alert">${esc(ui.gateErr)}</div>`:'');
-  if(gate==='loading')return `<div class="gate">${logoSvg()}<h1>Nous deux</h1><p class="gate-sub">Chargement…</p></div>`;
+  if(gate==='loading')return `<div class="gate">${logoSvg()}<h1>Couple Brain</h1><p class="gate-sub">Chargement…</p></div>`;
   if(gate==='error')return `<div class="gate">${logoSvg()}<h1>Oups</h1>${err}<button class="btn primary block" style="margin-top:18px" data-act="retry">Réessayer</button><button class="gate-link" data-act="signOut">Se déconnecter</button></div>`;
   if(gate==='auth'){
     const su=ui.authMode==='signup';
-    return `<div class="gate">${logoSvg()}<h1>Nous deux</h1><p class="gate-sub">${su?'Créez votre compte pour commencer.':'Connectez-vous pour retrouver votre espace à deux.'}</p>${err}
+    return `<div class="gate">${logoSvg()}<h1>Couple Brain</h1><p class="gate-sub">${su?'Créez votre compte pour commencer.':'Connectez-vous pour retrouver votre espace à deux.'}</p>${err}
     <label for="au-email">E-mail</label><input id="au-email" data-keep="au-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(ui.email)}">
     <label for="au-pass">Mot de passe</label><input id="au-pass" data-keep="au-pass" data-enter="authGo" type="password" autocomplete="${su?'new-password':'current-password'}">
     <button class="btn primary block" style="margin-top:22px" data-act="authGo">${su?'Créer mon compte':'Se connecter'}</button>
@@ -1476,7 +1500,7 @@ ACT.copyCode=async()=>{
   try{await navigator.clipboard.writeText(CID);toast('Code copié.')}catch(e){toast('Sélectionnez le code pour le copier.')}
 };
 ACT.shareCode=async()=>{
-  const text=`Rejoins-moi sur Nous deux ! Code d’invitation : ${fmtCode(CID)} — ${location.origin}${location.pathname}`;
+  const text=`Rejoins-moi sur Couple Brain ! Code d’invitation : ${fmtCode(CID)} — ${location.origin}${location.pathname}`;
   if(navigator.share){try{await navigator.share({text})}catch(e){}}
   else{try{await navigator.clipboard.writeText(text);toast('Message copié.')}catch(e){toast('Partage indisponible.')}}
 };

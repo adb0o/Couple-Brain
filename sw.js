@@ -1,6 +1,6 @@
 // Service worker : l'application s'ouvre même sans réseau (les données, elles, sont gardées par le cache Firestore).
 // Si vous modifiez les fichiers de l'app, changez le numéro de version ci-dessous.
-const V = 'nous-deux-v6';
+const V = 'couple-brain-v8';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
