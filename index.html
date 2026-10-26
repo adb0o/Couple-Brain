@@ -590,6 +590,25 @@ h1,h2,h3{font-weight:800;letter-spacing:-.03em}
 .wtile.done{opacity:.6}.wtile.done .wt-chk{background:currentColor}
 .wtile.done .wt-chk::after{border-color:var(--c)}
 .wtile.addt{background:transparent;border:2px dashed var(--ink);color:var(--ink)}
+
+/* ===== Charlotte la carotte ===== */
+.char{display:flex;align-items:center;gap:12px;background:var(--hero);color:#FFF6EC;border-radius:30px;padding:16px;margin:0 0 14px}
+.car{flex:none;display:block;animation:bob 3.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(1.5deg)}}
+.cb{flex:1;min-width:0}
+.bub2{background:#FFF6EC;color:#14121C;border-radius:18px 18px 18px 4px;padding:10px 12px;font-weight:700;font-size:15px;line-height:1.25}
+.cbtn{background:#FF7A3D;color:#14121C;border:0;min-height:46px;margin-top:10px;font-weight:800;width:100%}
+.cundo{display:block;margin-top:6px;color:#FFD9BF;font-weight:700;text-decoration:underline;text-underline-offset:3px;font-size:14px;padding:8px 0}
+.wz-top{display:flex;align-items:flex-end;gap:10px;margin:10px 0 14px}.wz-top .bub2{flex:1}
+.wz-ch .pk{min-height:48px;font-size:16px}
+.pv-day{background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:6px 14px;margin:0 0 10px}
+.pv-day>b{display:block;font:800 16px var(--f-d);padding:8px 0 2px}.pv-day>b::first-letter{text-transform:uppercase}
+.pv-row{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1.5px dashed var(--line)}
+.pv-s{flex:none;width:42px;font-size:13px;font-weight:700;color:var(--muted)}
+.pv-t{flex:1;min-width:0}.pv-t b{display:block;font-weight:700;overflow-wrap:anywhere}.pv-t small{color:var(--muted);font-size:13px}
+.pv-b{display:flex;flex-direction:column;gap:6px}.pvb{min-height:40px;padding:0 12px;border-radius:99px;border:1.5px solid var(--line);font-size:13px;font-weight:700}
+.pvb.on{background:var(--c2);color:#14121C;border-color:transparent}
+@media (prefers-reduced-motion: reduce){.car{animation:none}}
 </style>
 </head>
 <body>
@@ -878,7 +897,7 @@ function Menu(){
     const dow=parse(d).toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','');
     rows+=`<div class="mday ${d===t?'today':''} ${d<t?'past':''}"><div class="dblock"><small>${esc(dow)}</small><b>${parse(d).getDate()}</b></div><div class="mslots">${sl('midi','☀️',mid)}${sl('soir','🌙',soi)}</div></div>`;
   }
-  return `<div class="monthbar"><button class="iconbtn" data-act="week" data-d="-1" aria-label="Semaine précédente">${ic('left')}</button><h2 style="font-size:19px">${esc(label)}</h2><button class="iconbtn" data-act="week" data-d="1" aria-label="Semaine suivante">${ic('chev')}</button></div>
+  return charlotteCard()+`<div class="monthbar"><button class="iconbtn" data-act="week" data-d="-1" aria-label="Semaine précédente">${ic('left')}</button><h2 style="font-size:19px">${esc(label)}</h2><button class="iconbtn" data-act="week" data-d="1" aria-label="Semaine suivante">${ic('chev')}</button></div>
   <div class="plan"><div class="bar"><i style="width:${planned/14*100}%"></i></div><span>${planned}/14 repas prévus</span></div>
   ${rows}
   <button class="btn primary block" style="margin-top:14px" data-act="groceries">🧺 Ajouter les ingrédients aux courses</button>
@@ -1490,6 +1509,600 @@ ACT.exportAll=()=>{
   if(!list.length){toast('Aucun rendez-vous à venir à envoyer.');return}
   icsSheet('Envoyer vers Calendrier',buildICS(list),'nous-deux.ics',list.length);
 };
+
+/* ---------- Charlotte la carotte : idées de menus (100 % local, aucune IA en ligne) ---------- */
+const PLATS=`Spaghetti bolognaise|PV|pâtes|35|1|C|pemn|0|spaghetti, bœuf haché, sauce tomate, oignon, carotte, parmesan
+Pâtes carbonara|PV|pâtes|20|1|C|mn|0|spaghetti, lardons, œuf, parmesan, poivre
+Lasagnes bolognaise|PV|lasagnes|70|2|C|pemn|0|feuilles de lasagne, bœuf haché, sauce tomate, béchamel, gruyère
+Lasagnes épinards et ricotta|PG|lasagnes|60|2|C|vpemn|0|feuilles de lasagne, épinards, ricotta, sauce tomate, mozzarella
+Lasagnes aux courgettes|PG|lasagnes|60|2|C|vpemn|0|feuilles de lasagne, courgettes, sauce tomate, béchamel, mozzarella
+Gratin de macaronis au jambon|PV|gratin|45|1|C|emn|0|macaronis, jambon, crème, gruyère
+Pâtes au saumon fumé|PF|pâtes|20|2|C|pen|0|tagliatelles, saumon fumé, crème, citron, aneth
+Pâtes aux crevettes et à l'ail|PF|pâtes|25|3|L|plen|0|linguine, crevettes, ail, persil, citron, huile d'olive
+Penne crémeuses à la tomate|PG|pâtes|25|1|C|vpemn|0|penne, sauce tomate, crème, oignon, parmesan
+Cannellonis ricotta et épinards|PG|lasagnes|60|2|C|vpemn|0|cannellonis, ricotta, épinards, sauce tomate, mozzarella
+Raviolis ricotta sauce tomate|PG|pâtes|15|2|C|vpemn|0|raviolis, ricotta, sauce tomate, basilic, parmesan
+Tortellinis crème et jambon|PV|pâtes|15|2|C|emn|0|tortellinis, crème, jambon, parmesan, persil
+Riz cantonais|RV|riz|25|1|C|lmn|0|riz, jambon, petits pois, œuf, sauce soja, carotte
+Paella|RVF|riz|60|3|C|glen|0|riz, poulet, chorizo, crevettes, poivron, petits pois, safran
+Riz sauté au poulet|RV|riz|25|1|C|plmn|0|riz, poulet, carotte, petits pois, œuf, sauce soja
+Riz au lait de coco et crevettes|RF|riz|30|2|L|pglen|0|riz, crevettes, lait de coco, citron vert, coriandre
+Riz pilaf et poulet|RV|riz|40|1|C|pglemn|0|riz, poulet, oignon, bouillon, raisins secs
+Jambalaya|RVF|riz|50|2|C|glen|0|riz, poulet, chorizo, crevettes, poivron, tomate, oignon
+Riz mexicain et haricots noirs|RG|riz|30|1|L|vpglemn|0|riz, haricots noirs, maïs, poivron, tomate, coriandre
+Poulet yassa|MV|mijoté|60|2|C|pglemn|0|poulet, oignon, citron, moutarde, riz
+Steak frites|V|grill|25|2|C|pglemn|0|steak, pommes de terre, huile, sel
+Poulet rôti et pommes de terre|V|rôti|75|1|C|pglemn|0|poulet, pommes de terre, thym, ail
+Rôti de porc à la moutarde|V|rôti|70|1|C|glemn|0|rôti de porc, moutarde, pommes de terre, oignon
+Escalope de dinde à la crème|V|poêle|25|1|C|pgemn|0|escalope de dinde, crème, champignons, riz
+Blanc de poulet pané et purée|V|poêle|35|1|C|pmn|0|blanc de poulet, chapelure, œuf, pommes de terre, lait
+Saucisses et purée|V|poêle|30|1|C|gemn|0|saucisses, pommes de terre, beurre, lait, oignon
+Boulettes de bœuf sauce tomate|V|boulettes|35|1|C|plmn|0|bœuf haché, sauce tomate, oignon, mie de pain, œuf
+Hachis parmentier|V|gratin|60|1|C|pgemn|0|bœuf haché, pommes de terre, oignon, lait, gruyère
+Côtes d'agneau et haricots verts|V|grill|30|3|C|pglemn|0|côtes d'agneau, haricots verts, ail, romarin
+Magret de canard et pommes sautées|V|poêle|35|3|C|pglemn|0|magret de canard, pommes de terre, miel, ail
+Filet mignon aux pommes|V|rôti|50|2|C|gemn|0|filet mignon, pommes, oignon, crème, pommes de terre
+Poulet tikka masala|V|curry|40|2|C|pgemn|0|poulet, yaourt, épices tikka, tomate, crème, riz basmati
+Brochettes de poulet et semoule|V|grill|30|1|L|plemn|0|poulet, poivron, oignon, semoule, citron
+Kefta d'agneau et boulgour|V|boulettes|35|2|C|pemn|0|agneau haché, cumin, persil, boulgour, yaourt
+Poulet teriyaki|V|poêle|25|2|L|pglemn|0|poulet, sauce teriyaki, riz, brocoli, gingembre
+Bavette à l'échalote|V|grill|20|3|C|pgemn|0|bavette, échalote, beurre, pommes de terre
+Poulet à la moutarde|V|poêle|35|1|C|pgemn|0|poulet, moutarde, crème, champignons, riz
+Cuisses de poulet au four|V|rôti|55|1|C|pglemn|0|cuisses de poulet, pommes de terre, paprika, ail, carottes
+Rôti de veau aux carottes|V|rôti|80|3|C|pglemn|0|rôti de veau, carottes, oignon, vin blanc, thym
+Tartare de bœuf et frites|V|grill|25|3|C|pglmn|0|bœuf haché, câpres, cornichons, échalote, œuf, pommes de terre
+Bœuf bourguignon|MV|mijoté|180|2|C|glemn|0|bœuf, carottes, oignon, lardons, vin rouge, champignons
+Blanquette de veau|MV|mijoté|120|3|C|pgemn|0|veau, carottes, crème, champignons, riz
+Pot-au-feu|MV|mijoté|150|2|C|pglemn|0|bœuf, carottes, poireaux, navets, pommes de terre, os à moelle
+Cassoulet|MV|mijoté|150|2|C|glemn|0|haricots blancs, saucisses, confit de canard, lardons, tomate
+Tajine de poulet aux olives|MV|tajine|70|2|C|plemn|0|poulet, olives, citron confit, oignon, semoule, gingembre
+Tajine d'agneau aux pruneaux|MV|tajine|110|3|C|plem|0|agneau, pruneaux, amandes, oignon, cannelle, semoule
+Couscous royal|MV|couscous|120|3|C|plemn|0|semoule, agneau, poulet, merguez, carottes, courgettes, pois chiches, navets
+Couscous végétarien|MG|couscous|60|1|L|vplemn|0|semoule, carottes, courgettes, pois chiches, navets, raisins secs
+Coq au vin|MV|mijoté|120|2|C|glemn|0|poulet, vin rouge, lardons, champignons, oignon, carottes
+Chili con carne|MV|chili|60|1|C|pglemn|0|bœuf haché, haricots rouges, tomate, poivron, oignon, riz, piment
+Lentilles aux saucisses|MV|mijoté|45|1|C|glemn|0|lentilles, saucisses, carottes, oignon, lardons
+Navarin d'agneau|MV|mijoté|120|3|C|pglemn|0|agneau, carottes, navets, pommes de terre, petits pois, oignon
+Daube provençale|MV|mijoté|180|2|C|plemn|0|bœuf, vin rouge, olives, carottes, tomate, pâtes
+Rougail saucisses|MV|mijoté|50|1|C|glemn|0|saucisses, tomate, oignon, gingembre, piment, riz
+Sauté de veau marengo|MV|mijoté|100|3|C|pglemn|0|veau, tomate, champignons, oignon, vin blanc, pommes de terre
+Osso buco|MV|mijoté|150|3|C|pglemn|0|jarret de veau, tomate, carottes, vin blanc, riz
+Poulet basquaise|MV|mijoté|60|2|C|pglemn|0|poulet, poivron, tomate, oignon, piment d'Espelette, riz
+Bœuf aux carottes|MV|mijoté|130|2|C|pglemn|0|bœuf, carottes, oignon, thym, pommes de terre
+Curry de pois chiches et épinards|MG|curry|35|1|L|vpglemn|0|pois chiches, épinards, tomate, lait de coco, oignon, riz basmati
+Ratatouille et riz|G|légumes|60|1|L|vpglemn|0|aubergine, courgette, poivron, tomate, oignon, riz
+Quiche aux poireaux|G|tarte|60|1|C|vpmn|0|pâte brisée, poireaux, œuf, crème, gruyère
+Quiche lorraine|V|tarte|55|1|C|mn|0|pâte brisée, lardons, œuf, crème, gruyère
+Tarte à la tomate et à la moutarde|G|tarte|50|1|L|vpemn|0|pâte brisée, tomates, moutarde, mozzarella, origan
+Omelette aux champignons|G|œufs|15|1|L|vpgmn|0|œufs, champignons, persil, beurre
+Tortilla espagnole|G|œufs|35|1|C|vpglmn|0|œufs, pommes de terre, oignon, huile d'olive
+Shakshuka|G|œufs|30|1|L|vplmn|0|œufs, tomate, poivron, oignon, cumin, pain
+Falafels et houmous|G|falafel|35|1|L|vplemn|0|pois chiches, persil, houmous, pain pita, concombre
+Dal de lentilles corail|G|curry|30|1|L|vpglemn|0|lentilles corail, lait de coco, tomate, oignon, curry, riz basmati
+Chili sin carne|G|chili|45|1|C|vpglemn|0|haricots rouges, maïs, poivron, tomate, oignon, riz
+Gnocchis sauce tomate et mozzarella|G|gnocchis|25|1|C|vpemn|0|gnocchis, sauce tomate, mozzarella, basilic
+Buddha bowl quinoa et légumes rôtis|G|bowl|40|2|L|vpglemn|0|quinoa, patate douce, pois chiches, avocat, épinards, tahini
+Poêlée de légumes et œuf|G|légumes|25|1|L|vpglmn|0|courgette, poivron, pommes de terre, œufs, oignon
+Galettes de pommes de terre et salade|G|galette|35|1|C|vplmn|0|pommes de terre, œuf, oignon, farine, salade verte
+Tarte aux courgettes et au chèvre|G|tarte|50|1|C|vpmn|0|pâte brisée, courgettes, chèvre, œuf, crème
+Saumon en papillote et riz|F|papillote|30|3|L|pglen|0|saumon, citron, aneth, courgette, riz
+Cabillaud et purée|F|poêle|30|2|L|pgen|0|cabillaud, pommes de terre, lait, beurre, citron
+Moules marinières et frites|F|moules|35|2|C|pgen|0|moules, vin blanc, échalote, crème, pommes de terre
+Fish and chips au four|F|poêle|40|2|C|plen|0|cabillaud, chapelure, pommes de terre, citron, petits pois
+Thon poêlé et légumes|F|poêle|25|3|L|pglen|0|thon, haricots verts, tomates cerises, huile d'olive, riz
+Gambas à l'ail et riz|F|poêle|20|3|L|pglen|0|gambas, ail, persil, citron, riz
+Brandade de morue|F|gratin|60|2|C|pgen|0|morue, pommes de terre, ail, lait, huile d'olive
+Saumon teriyaki et nouilles|F|poêle|25|3|L|plen|0|saumon, sauce teriyaki, nouilles de blé, brocoli
+Tartare de saumon et avocat|F|tartare|20|3|L|plen|0|saumon, avocat, citron vert, coriandre, sauce soja, riz
+Sardines grillées et salade|F|grill|20|1|L|plen|0|sardines, citron, tomates, salade verte, pain
+Bar au fenouil|F|rôti|40|3|L|pglen|0|bar, fenouil, citron, pommes de terre, huile d'olive
+Pizza margherita|XG|pizza|30|1|C|vpemn|1|pâte à pizza, sauce tomate, mozzarella, basilic
+Croque-monsieur|XV|croque|20|1|C|emn|1|pain de mie, jambon, gruyère, béchamel
+Croque-madame|XV|croque|25|1|C|mn|1|pain de mie, jambon, gruyère, béchamel, œuf
+Burger maison|XV|burger|30|2|C|pemn|1|pain burger, steak haché, cheddar, salade, tomate, oignon
+Hot-dog|XV|sandwich|15|1|C|lemn|1|pain à hot-dog, saucisse de Strasbourg, moutarde, oignons frits
+Club sandwich|XV|sandwich|15|1|C|lmn|1|pain de mie, poulet, bacon, tomate, salade, mayonnaise
+Fajitas de poulet|XV|wrap|30|2|C|pemn|1|wraps, poulet, poivron, oignon, guacamole, crème
+Pad thaï|XF|nouilles|30|2|C|pgl|1|nouilles de riz, crevettes, œuf, cacahuètes, pousses de soja, citron vert
+Bo bun|XV|bowl|35|2|L|pglem|1|vermicelles de riz, bœuf, salade, carotte, nems, menthe, cacahuètes
+Nuggets de poulet maison|XV|poêle|35|1|C|plmn|1|poulet, chapelure, œuf, pommes de terre, ketchup
+Kebab maison|XV|sandwich|25|2|C|pemn|1|pain pita, poulet, sauce blanche, oignon, tomate, salade
+Spaghetti à la tomate et au basilic|PG|pâtes|20|1|L|vpemn|0|spaghetti, sauce tomate, basilic, ail, parmesan
+Penne à la tomate et au basilic|PG|pâtes|20|1|L|vpemn|0|penne, sauce tomate, basilic, ail, parmesan
+Tagliatelles à la tomate et au basilic|PG|pâtes|20|1|L|vpemn|0|tagliatelles, sauce tomate, basilic, ail, parmesan
+Fusilli à la tomate et au basilic|PG|pâtes|20|1|L|vpemn|0|fusilli, sauce tomate, basilic, ail, parmesan
+Rigatoni à la tomate et au basilic|PG|pâtes|20|1|L|vpemn|0|rigatoni, sauce tomate, basilic, ail, parmesan
+Coquillettes à la tomate et au basilic|PG|pâtes|20|1|L|vpemn|0|coquillettes, sauce tomate, basilic, ail, parmesan
+Spaghetti à l'arrabbiata|PG|pâtes|20|1|L|vplemn|0|spaghetti, tomate, piment, ail, persil
+Penne à l'arrabbiata|PG|pâtes|20|1|L|vplemn|0|penne, tomate, piment, ail, persil
+Tagliatelles à l'arrabbiata|PG|pâtes|20|1|L|vplemn|0|tagliatelles, tomate, piment, ail, persil
+Fusilli à l'arrabbiata|PG|pâtes|20|1|L|vplemn|0|fusilli, tomate, piment, ail, persil
+Rigatoni à l'arrabbiata|PG|pâtes|20|1|L|vplemn|0|rigatoni, tomate, piment, ail, persil
+Coquillettes à l'arrabbiata|PG|pâtes|20|1|L|vplemn|0|coquillettes, tomate, piment, ail, persil
+Spaghetti au pesto|PG|pâtes|15|2|C|vpem|0|spaghetti, pesto, parmesan, tomates cerises
+Penne au pesto|PG|pâtes|15|2|C|vpem|0|penne, pesto, parmesan, tomates cerises
+Tagliatelles au pesto|PG|pâtes|15|2|C|vpem|0|tagliatelles, pesto, parmesan, tomates cerises
+Fusilli au pesto|PG|pâtes|15|2|C|vpem|0|fusilli, pesto, parmesan, tomates cerises
+Rigatoni au pesto|PG|pâtes|15|2|C|vpem|0|rigatoni, pesto, parmesan, tomates cerises
+Coquillettes au pesto|PG|pâtes|15|2|C|vpem|0|coquillettes, pesto, parmesan, tomates cerises
+Spaghetti aux quatre fromages|PG|pâtes|20|2|C|vpemn|0|spaghetti, mozzarella, gorgonzola, parmesan, crème
+Penne aux quatre fromages|PG|pâtes|20|2|C|vpemn|0|penne, mozzarella, gorgonzola, parmesan, crème
+Tagliatelles aux quatre fromages|PG|pâtes|20|2|C|vpemn|0|tagliatelles, mozzarella, gorgonzola, parmesan, crème
+Fusilli aux quatre fromages|PG|pâtes|20|2|C|vpemn|0|fusilli, mozzarella, gorgonzola, parmesan, crème
+Rigatoni aux quatre fromages|PG|pâtes|20|2|C|vpemn|0|rigatoni, mozzarella, gorgonzola, parmesan, crème
+Coquillettes aux quatre fromages|PG|pâtes|20|2|C|vpemn|0|coquillettes, mozzarella, gorgonzola, parmesan, crème
+Spaghetti aux champignons et à la crème|PG|pâtes|25|1|C|vpemn|0|spaghetti, champignons, crème, ail, persil
+Penne aux champignons et à la crème|PG|pâtes|25|1|C|vpemn|0|penne, champignons, crème, ail, persil
+Tagliatelles aux champignons et à la crème|PG|pâtes|25|1|C|vpemn|0|tagliatelles, champignons, crème, ail, persil
+Fusilli aux champignons et à la crème|PG|pâtes|25|1|C|vpemn|0|fusilli, champignons, crème, ail, persil
+Rigatoni aux champignons et à la crème|PG|pâtes|25|1|C|vpemn|0|rigatoni, champignons, crème, ail, persil
+Coquillettes aux champignons et à la crème|PG|pâtes|25|1|C|vpemn|0|coquillettes, champignons, crème, ail, persil
+Spaghetti au thon et à la tomate|PF|pâtes|20|1|L|plen|0|spaghetti, thon, sauce tomate, oignon, olives
+Penne au thon et à la tomate|PF|pâtes|20|1|L|plen|0|penne, thon, sauce tomate, oignon, olives
+Tagliatelles au thon et à la tomate|PF|pâtes|20|1|L|plen|0|tagliatelles, thon, sauce tomate, oignon, olives
+Fusilli au thon et à la tomate|PF|pâtes|20|1|L|plen|0|fusilli, thon, sauce tomate, oignon, olives
+Rigatoni au thon et à la tomate|PF|pâtes|20|1|L|plen|0|rigatoni, thon, sauce tomate, oignon, olives
+Coquillettes au thon et à la tomate|PF|pâtes|20|1|L|plen|0|coquillettes, thon, sauce tomate, oignon, olives
+Spaghetti aux courgettes et au chèvre|PG|pâtes|25|1|L|vpemn|0|spaghetti, courgettes, chèvre, crème, ail
+Penne aux courgettes et au chèvre|PG|pâtes|25|1|L|vpemn|0|penne, courgettes, chèvre, crème, ail
+Tagliatelles aux courgettes et au chèvre|PG|pâtes|25|1|L|vpemn|0|tagliatelles, courgettes, chèvre, crème, ail
+Fusilli aux courgettes et au chèvre|PG|pâtes|25|1|L|vpemn|0|fusilli, courgettes, chèvre, crème, ail
+Rigatoni aux courgettes et au chèvre|PG|pâtes|25|1|L|vpemn|0|rigatoni, courgettes, chèvre, crème, ail
+Coquillettes aux courgettes et au chèvre|PG|pâtes|25|1|L|vpemn|0|coquillettes, courgettes, chèvre, crème, ail
+Spaghetti au poulet et à la crème|PV|pâtes|30|2|C|pemn|0|spaghetti, poulet, crème, champignons, ail
+Penne au poulet et à la crème|PV|pâtes|30|2|C|pemn|0|penne, poulet, crème, champignons, ail
+Tagliatelles au poulet et à la crème|PV|pâtes|30|2|C|pemn|0|tagliatelles, poulet, crème, champignons, ail
+Fusilli au poulet et à la crème|PV|pâtes|30|2|C|pemn|0|fusilli, poulet, crème, champignons, ail
+Rigatoni au poulet et à la crème|PV|pâtes|30|2|C|pemn|0|rigatoni, poulet, crème, champignons, ail
+Coquillettes au poulet et à la crème|PV|pâtes|30|2|C|pemn|0|coquillettes, poulet, crème, champignons, ail
+Spaghetti aux lardons et à la crème|PV|pâtes|25|1|C|emn|0|spaghetti, lardons, crème, oignon, parmesan
+Penne aux lardons et à la crème|PV|pâtes|25|1|C|emn|0|penne, lardons, crème, oignon, parmesan
+Tagliatelles aux lardons et à la crème|PV|pâtes|25|1|C|emn|0|tagliatelles, lardons, crème, oignon, parmesan
+Fusilli aux lardons et à la crème|PV|pâtes|25|1|C|emn|0|fusilli, lardons, crème, oignon, parmesan
+Rigatoni aux lardons et à la crème|PV|pâtes|25|1|C|emn|0|rigatoni, lardons, crème, oignon, parmesan
+Coquillettes aux lardons et à la crème|PV|pâtes|25|1|C|emn|0|coquillettes, lardons, crème, oignon, parmesan
+Spaghetti aux légumes rôtis|PG|pâtes|35|1|L|vplemn|0|spaghetti, courgettes, poivron, aubergine, tomate, huile d'olive
+Penne aux légumes rôtis|PG|pâtes|35|1|L|vplemn|0|penne, courgettes, poivron, aubergine, tomate, huile d'olive
+Tagliatelles aux légumes rôtis|PG|pâtes|35|1|L|vplemn|0|tagliatelles, courgettes, poivron, aubergine, tomate, huile d'olive
+Fusilli aux légumes rôtis|PG|pâtes|35|1|L|vplemn|0|fusilli, courgettes, poivron, aubergine, tomate, huile d'olive
+Rigatoni aux légumes rôtis|PG|pâtes|35|1|L|vplemn|0|rigatoni, courgettes, poivron, aubergine, tomate, huile d'olive
+Coquillettes aux légumes rôtis|PG|pâtes|35|1|L|vplemn|0|coquillettes, courgettes, poivron, aubergine, tomate, huile d'olive
+Spaghetti aux crevettes et tomates cerises|PF|pâtes|25|3|L|plen|0|spaghetti, crevettes, tomates cerises, ail, persil
+Penne aux crevettes et tomates cerises|PF|pâtes|25|3|L|plen|0|penne, crevettes, tomates cerises, ail, persil
+Tagliatelles aux crevettes et tomates cerises|PF|pâtes|25|3|L|plen|0|tagliatelles, crevettes, tomates cerises, ail, persil
+Fusilli aux crevettes et tomates cerises|PF|pâtes|25|3|L|plen|0|fusilli, crevettes, tomates cerises, ail, persil
+Rigatoni aux crevettes et tomates cerises|PF|pâtes|25|3|L|plen|0|rigatoni, crevettes, tomates cerises, ail, persil
+Coquillettes aux crevettes et tomates cerises|PF|pâtes|25|3|L|plen|0|coquillettes, crevettes, tomates cerises, ail, persil
+Spaghetti à la ricotta et aux épinards|PG|pâtes|25|2|C|vpemn|0|spaghetti, ricotta, épinards, ail, parmesan
+Penne à la ricotta et aux épinards|PG|pâtes|25|2|C|vpemn|0|penne, ricotta, épinards, ail, parmesan
+Tagliatelles à la ricotta et aux épinards|PG|pâtes|25|2|C|vpemn|0|tagliatelles, ricotta, épinards, ail, parmesan
+Fusilli à la ricotta et aux épinards|PG|pâtes|25|2|C|vpemn|0|fusilli, ricotta, épinards, ail, parmesan
+Rigatoni à la ricotta et aux épinards|PG|pâtes|25|2|C|vpemn|0|rigatoni, ricotta, épinards, ail, parmesan
+Coquillettes à la ricotta et aux épinards|PG|pâtes|25|2|C|vpemn|0|coquillettes, ricotta, épinards, ail, parmesan
+Spaghetti au saumon et au brocoli|PF|pâtes|30|3|C|pen|0|spaghetti, saumon, brocoli, crème, citron
+Penne au saumon et au brocoli|PF|pâtes|30|3|C|pen|0|penne, saumon, brocoli, crème, citron
+Tagliatelles au saumon et au brocoli|PF|pâtes|30|3|C|pen|0|tagliatelles, saumon, brocoli, crème, citron
+Fusilli au saumon et au brocoli|PF|pâtes|30|3|C|pen|0|fusilli, saumon, brocoli, crème, citron
+Rigatoni au saumon et au brocoli|PF|pâtes|30|3|C|pen|0|rigatoni, saumon, brocoli, crème, citron
+Coquillettes au saumon et au brocoli|PF|pâtes|30|3|C|pen|0|coquillettes, saumon, brocoli, crème, citron
+Spaghetti aux boulettes de bœuf|PV|pâtes|40|2|C|pemn|0|spaghetti, boulettes de bœuf, sauce tomate, oignon, parmesan
+Penne aux boulettes de bœuf|PV|pâtes|40|2|C|pemn|0|penne, boulettes de bœuf, sauce tomate, oignon, parmesan
+Tagliatelles aux boulettes de bœuf|PV|pâtes|40|2|C|pemn|0|tagliatelles, boulettes de bœuf, sauce tomate, oignon, parmesan
+Fusilli aux boulettes de bœuf|PV|pâtes|40|2|C|pemn|0|fusilli, boulettes de bœuf, sauce tomate, oignon, parmesan
+Rigatoni aux boulettes de bœuf|PV|pâtes|40|2|C|pemn|0|rigatoni, boulettes de bœuf, sauce tomate, oignon, parmesan
+Coquillettes aux boulettes de bœuf|PV|pâtes|40|2|C|pemn|0|coquillettes, boulettes de bœuf, sauce tomate, oignon, parmesan
+Gratin de courgettes|G|gratin|50|1|C|vpgemn|0|courgettes, crème, gruyère, ail
+Gratin de chou-fleur|G|gratin|50|1|C|vpemn|0|chou-fleur, béchamel, gruyère, muscade
+Gratin de brocoli|G|gratin|50|1|C|vpemn|0|brocoli, béchamel, gruyère, ail
+Gratin de pommes de terre à la dauphinoise|G|gratin|65|1|C|vpgemn|0|pommes de terre, crème, ail, muscade
+Gratin de endives au jambon|V|gratin|50|1|C|emn|0|endives, jambon, béchamel, gruyère
+Gratin de épinards|G|gratin|50|1|C|vpgemn|0|épinards, crème, gruyère, muscade
+Gratin de potiron|G|gratin|50|1|C|vpgemn|0|potiron, crème, gruyère, muscade
+Gratin de aubergines à la tomate|G|gratin|50|1|C|vpgemn|0|aubergines, sauce tomate, mozzarella, parmesan
+Gratin de poireaux|G|gratin|50|1|C|vpemn|0|poireaux, béchamel, gruyère, muscade
+Gratin de patates douces|G|gratin|50|1|C|vpgemn|0|patates douces, crème, chèvre, romarin
+Gratin de fenouil|G|gratin|50|1|C|vpgemn|0|fenouil, crème, parmesan, thym
+Gratin de butternut|G|gratin|50|1|C|vpgemn|0|butternut, crème, parmesan, sauge
+Gratin de courgettes et thon|F|gratin|50|1|C|pgen|0|courgettes, thon, crème, gruyère
+Gratin de chou-fleur et jambon|V|gratin|50|1|C|emn|0|chou-fleur, jambon, béchamel, gruyère
+Soupe de carottes au cumin|SG|soupe|30|1|L|vpglemn|0|carottes, cumin, oignon, bouillon
+Velouté de potiron|SG|soupe|35|1|L|vpgemn|0|potiron, crème, oignon, muscade
+Soupe de poireaux et pommes de terre|SG|soupe|35|1|L|vpglemn|0|poireaux, pommes de terre, oignon, bouillon
+Soupe de tomates et basilic|SG|soupe|30|1|L|vpglemn|0|tomates, basilic, oignon, bouillon
+Velouté de courgettes et fromage frais|SG|soupe|30|1|L|vpgemn|0|courgettes, fromage frais, menthe, oignon
+Velouté de champignons|SG|soupe|30|1|L|vpgemn|0|champignons, crème, oignon, bouillon
+Soupe de lentilles corail et coco|SG|soupe|30|1|L|vpglemn|0|lentilles corail, lait de coco, carottes, curry
+Soupe de petits pois et menthe|SG|soupe|25|1|L|vpglemn|0|petits pois, menthe, oignon, bouillon
+Soupe de brocoli et pommes de terre|SG|soupe|30|1|L|vpglemn|0|brocoli, pommes de terre, oignon, bouillon
+Soupe à l'oignon gratinée|SG|soupe|50|1|C|vpemn|0|oignons, pain, gruyère, bouillon
+Soupe de chou-fleur au curry|SG|soupe|35|1|L|vpglemn|0|chou-fleur, curry, oignon, bouillon
+Soupe de patate douce et coco|SG|soupe|35|1|L|vpglemn|0|patates douces, lait de coco, gingembre, oignon
+Velouté de butternut et châtaignes|SG|soupe|40|1|L|vpgemn|0|butternut, châtaignes, crème, oignon
+Minestrone|SG|soupe|45|1|C|vpemn|0|haricots blancs, carottes, courgettes, pâtes, tomates, parmesan
+Soupe de poisson|SF|soupe|45|2|L|pglen|0|poisson, tomates, fenouil, pommes de terre, ail
+Soupe thaï aux crevettes|SF|soupe|30|2|L|pglen|0|crevettes, lait de coco, champignons, citronnelle, riz
+Soupe miso et tofu|SG|soupe|20|1|L|vpglemn|0|miso, tofu, algues, oignon vert, champignons
+Soupe pho au bœuf|SV|soupe|35|2|L|pglemn|0|bouillon, nouilles de riz, bœuf, oignon, herbes fraîches
+Salade niçoise|AF|salade|20|2|L|pgln|0|thon, œuf, tomates, haricots verts, olives, pommes de terre
+Salade César au poulet|AV|salade|25|2|C|pn|0|poulet, salade romaine, parmesan, croûtons, sauce césar
+Salade de chèvre chaud|AG|salade|20|2|C|vpem|0|chèvre, pain, salade verte, noix, miel
+Salade grecque|AG|salade|15|1|L|vpgemn|0|feta, concombre, tomates, olives, oignon rouge
+Salade de pommes de terre tiède|AG|salade|30|1|L|vpglmn|0|pommes de terre, échalote, cornichons, œuf, vinaigrette
+Salade caprese|AG|salade|10|1|L|vpemn|0|tomates, mozzarella, basilic, huile d'olive, pain
+Salade de poulet et avocat|AV|salade|20|2|L|pglemn|0|poulet, avocat, salade verte, tomates cerises, maïs
+Salade de crudités et œuf|AG|salade|15|1|L|vpglmn|0|carottes, concombre, tomates, œuf, vinaigrette
+Salade de pois chiches|AG|salade|15|1|L|vpgemn|0|pois chiches, concombre, poivron, persil, feta
+Taboulé libanais|AG|salade|20|1|L|vplemn|0|persil, menthe, tomates, boulgour, citron, huile d'olive
+Salade piémontaise|AV|salade|30|1|L|glmn|0|pommes de terre, jambon, œuf, tomates, cornichons
+Salade de crevettes et avocat|AF|salade|15|3|L|pglen|0|crevettes, avocat, pamplemousse, salade verte
+Salade de betteraves et chèvre|AG|salade|15|1|L|vpgem|0|betteraves, chèvre, noix, salade verte
+Salade de melon et jambon cru|AV|salade|10|2|L|glemn|0|melon, jambon cru, roquette, huile d'olive
+Salade de burrata et tomates|AG|salade|10|2|L|vpemn|0|burrata, tomates, basilic, pain
+Salade Cobb|AV|salade|25|2|C|glmn|0|poulet, œuf, avocat, bacon, tomates, salade verte
+Salade de haricots blancs et thon|AF|salade|15|1|L|pglen|0|haricots blancs, thon, oignon rouge, persil, citron
+Salade de lentilles vertes et lardons|AV|salade|30|1|C|glemn|0|lentilles vertes, lardons, carottes, échalote, vinaigrette
+Salade de pâtes pesto et mozzarella|AG|salade|20|1|C|vpem|0|pâtes, pesto, tomates cerises, mozzarella, basilic
+Salade de saumon fumé et pommes de terre|AF|salade|25|2|C|pgen|0|saumon fumé, pommes de terre, aneth, crème, citron
+Coleslaw et poulet grillé|AV|salade|25|1|L|pgemn|0|chou blanc, carottes, poulet, yaourt, moutarde
+Salade de pâtes, thon, tomates et maïs|AF|salade-céréales|20|1|L|plen|0|pâtes, thon, tomates, maïs, vinaigrette
+Salade de pâtes, poulet, avocat et concombre|AV|salade-céréales|20|1|L|plemn|0|pâtes, poulet, avocat, concombre, vinaigrette
+Salade de pâtes, feta, concombre et menthe|AG|salade-céréales|20|1|L|vpemn|0|pâtes, feta, concombre, menthe, olives
+Salade de pâtes, saumon fumé, aneth et citron|AF|salade-céréales|20|2|L|plen|0|pâtes, saumon fumé, aneth, citron, concombre
+Salade de pâtes, jambon, œuf et tomates|AV|salade-céréales|20|1|L|lmn|0|pâtes, jambon, œuf, tomates, cornichons
+Salade de pâtes, légumes grillés et chèvre|AG|salade-céréales|20|1|L|vpemn|0|pâtes, courgettes, poivron, chèvre, vinaigrette
+Salade de pâtes, crevettes, avocat et coriandre|AF|salade-céréales|20|2|L|plen|0|pâtes, crevettes, avocat, citron vert, coriandre
+Salade de pâtes, pois chiches, poivron et persil|AG|salade-céréales|20|1|L|vplemn|0|pâtes, pois chiches, poivron, persil, citron
+Salade de riz, thon, tomates et maïs|AF|salade-céréales|20|1|L|pglen|0|riz, thon, tomates, maïs, vinaigrette
+Salade de riz, poulet, avocat et concombre|AV|salade-céréales|20|1|L|pglemn|0|riz, poulet, avocat, concombre, vinaigrette
+Salade de riz, feta, concombre et menthe|AG|salade-céréales|20|1|L|vpgemn|0|riz, feta, concombre, menthe, olives
+Salade de riz, saumon fumé, aneth et citron|AF|salade-céréales|20|2|L|pglen|0|riz, saumon fumé, aneth, citron, concombre
+Salade de riz, jambon, œuf et tomates|AV|salade-céréales|20|1|L|glmn|0|riz, jambon, œuf, tomates, cornichons
+Salade de riz, légumes grillés et chèvre|AG|salade-céréales|20|1|L|vpgemn|0|riz, courgettes, poivron, chèvre, vinaigrette
+Salade de riz, crevettes, avocat et coriandre|AF|salade-céréales|20|2|L|pglen|0|riz, crevettes, avocat, citron vert, coriandre
+Salade de riz, pois chiches, poivron et persil|AG|salade-céréales|20|1|L|vpglemn|0|riz, pois chiches, poivron, persil, citron
+Salade de quinoa, thon, tomates et maïs|AF|salade-céréales|20|1|L|pglen|0|quinoa, thon, tomates, maïs, vinaigrette
+Salade de quinoa, poulet, avocat et concombre|AV|salade-céréales|20|1|L|pglemn|0|quinoa, poulet, avocat, concombre, vinaigrette
+Salade de quinoa, feta, concombre et menthe|AG|salade-céréales|20|1|L|vpgemn|0|quinoa, feta, concombre, menthe, olives
+Salade de quinoa, saumon fumé, aneth et citron|AF|salade-céréales|20|2|L|pglen|0|quinoa, saumon fumé, aneth, citron, concombre
+Salade de quinoa, jambon, œuf et tomates|AV|salade-céréales|20|1|L|glmn|0|quinoa, jambon, œuf, tomates, cornichons
+Salade de quinoa, légumes grillés et chèvre|AG|salade-céréales|20|1|L|vpgemn|0|quinoa, courgettes, poivron, chèvre, vinaigrette
+Salade de quinoa, crevettes, avocat et coriandre|AF|salade-céréales|20|2|L|pglen|0|quinoa, crevettes, avocat, citron vert, coriandre
+Salade de quinoa, pois chiches, poivron et persil|AG|salade-céréales|20|1|L|vpglemn|0|quinoa, pois chiches, poivron, persil, citron
+Salade de lentilles, thon, tomates et maïs|AF|salade-céréales|20|1|L|pglen|0|lentilles, thon, tomates, maïs, vinaigrette
+Salade de lentilles, poulet, avocat et concombre|AV|salade-céréales|20|1|L|pglemn|0|lentilles, poulet, avocat, concombre, vinaigrette
+Salade de lentilles, feta, concombre et menthe|AG|salade-céréales|20|1|L|vpgemn|0|lentilles, feta, concombre, menthe, olives
+Salade de lentilles, saumon fumé, aneth et citron|AF|salade-céréales|20|2|L|pglen|0|lentilles, saumon fumé, aneth, citron, concombre
+Salade de lentilles, jambon, œuf et tomates|AV|salade-céréales|20|1|L|glmn|0|lentilles, jambon, œuf, tomates, cornichons
+Salade de lentilles, légumes grillés et chèvre|AG|salade-céréales|20|1|L|vpgemn|0|lentilles, courgettes, poivron, chèvre, vinaigrette
+Salade de lentilles, crevettes, avocat et coriandre|AF|salade-céréales|20|2|L|pglen|0|lentilles, crevettes, avocat, citron vert, coriandre
+Salade de lentilles, pois chiches, poivron et persil|AG|salade-céréales|20|1|L|vpglemn|0|lentilles, pois chiches, poivron, persil, citron
+Salade de semoule, thon, tomates et maïs|AF|salade-céréales|20|1|L|plen|0|semoule, thon, tomates, maïs, vinaigrette
+Salade de semoule, poulet, avocat et concombre|AV|salade-céréales|20|1|L|plemn|0|semoule, poulet, avocat, concombre, vinaigrette
+Salade de semoule, feta, concombre et menthe|AG|salade-céréales|20|1|L|vpemn|0|semoule, feta, concombre, menthe, olives
+Salade de semoule, saumon fumé, aneth et citron|AF|salade-céréales|20|2|L|plen|0|semoule, saumon fumé, aneth, citron, concombre
+Salade de semoule, jambon, œuf et tomates|AV|salade-céréales|20|1|L|lmn|0|semoule, jambon, œuf, tomates, cornichons
+Salade de semoule, légumes grillés et chèvre|AG|salade-céréales|20|1|L|vpemn|0|semoule, courgettes, poivron, chèvre, vinaigrette
+Salade de semoule, crevettes, avocat et coriandre|AF|salade-céréales|20|2|L|plen|0|semoule, crevettes, avocat, citron vert, coriandre
+Salade de semoule, pois chiches, poivron et persil|AG|salade-céréales|20|1|L|vplemn|0|semoule, pois chiches, poivron, persil, citron
+Wok de poulet, brocoli et carottes|XV|wok|25|1|L|plemn|1|poulet, brocoli, carottes, nouilles de blé, sauce soja, ail, gingembre
+Wok de poulet, poivrons et oignons|XV|wok|25|1|L|plemn|1|poulet, poivron, oignon, riz, sauce soja, ail, gingembre
+Wok de poulet, haricots verts et champignons|XV|wok|25|1|L|plemn|1|poulet, haricots verts, champignons, nouilles de blé, sauce soja, ail, gingembre
+Wok de poulet, pak-choï et champignons|XV|wok|25|1|L|plemn|1|poulet, pak-choï, champignons, riz, sauce soja, ail, gingembre
+Wok de poulet, courgettes et poivron|XV|wok|25|1|L|plemn|1|poulet, courgette, poivron, nouilles de blé, sauce soja, ail, gingembre
+Wok de bœuf, brocoli et carottes|XV|wok|25|2|L|plemn|1|bœuf, brocoli, carottes, riz, sauce soja, ail, gingembre
+Wok de bœuf, poivrons et oignons|XV|wok|25|2|L|plemn|1|bœuf, poivron, oignon, nouilles de blé, sauce soja, ail, gingembre
+Wok de bœuf, haricots verts et champignons|XV|wok|25|2|L|plemn|1|bœuf, haricots verts, champignons, riz, sauce soja, ail, gingembre
+Wok de bœuf, pak-choï et champignons|XV|wok|25|2|L|plemn|1|bœuf, pak-choï, champignons, nouilles de blé, sauce soja, ail, gingembre
+Wok de bœuf, courgettes et poivron|XV|wok|25|2|L|plemn|1|bœuf, courgette, poivron, riz, sauce soja, ail, gingembre
+Wok de crevettes, brocoli et carottes|XF|wok|25|3|L|plen|1|crevettes, brocoli, carottes, nouilles de blé, sauce soja, ail, gingembre
+Wok de crevettes, poivrons et oignons|XF|wok|25|3|L|plen|1|crevettes, poivron, oignon, riz, sauce soja, ail, gingembre
+Wok de crevettes, haricots verts et champignons|XF|wok|25|3|L|plen|1|crevettes, haricots verts, champignons, nouilles de blé, sauce soja, ail, gingembre
+Wok de crevettes, pak-choï et champignons|XF|wok|25|3|L|plen|1|crevettes, pak-choï, champignons, riz, sauce soja, ail, gingembre
+Wok de crevettes, courgettes et poivron|XF|wok|25|3|L|plen|1|crevettes, courgette, poivron, nouilles de blé, sauce soja, ail, gingembre
+Wok de porc, brocoli et carottes|XV|wok|25|1|L|lemn|1|porc émincé, brocoli, carottes, riz, sauce soja, ail, gingembre
+Wok de porc, poivrons et oignons|XV|wok|25|1|L|lemn|1|porc émincé, poivron, oignon, nouilles de blé, sauce soja, ail, gingembre
+Wok de porc, haricots verts et champignons|XV|wok|25|1|L|lemn|1|porc émincé, haricots verts, champignons, riz, sauce soja, ail, gingembre
+Wok de porc, pak-choï et champignons|XV|wok|25|1|L|lemn|1|porc émincé, pak-choï, champignons, nouilles de blé, sauce soja, ail, gingembre
+Wok de porc, courgettes et poivron|XV|wok|25|1|L|lemn|1|porc émincé, courgette, poivron, riz, sauce soja, ail, gingembre
+Wok de tofu, brocoli et carottes|XG|wok|25|1|L|vplemn|1|tofu ferme, brocoli, carottes, nouilles de blé, sauce soja, ail, gingembre
+Wok de tofu, poivrons et oignons|XG|wok|25|1|L|vplemn|1|tofu ferme, poivron, oignon, riz, sauce soja, ail, gingembre
+Wok de tofu, haricots verts et champignons|XG|wok|25|1|L|vplemn|1|tofu ferme, haricots verts, champignons, nouilles de blé, sauce soja, ail, gingembre
+Wok de tofu, pak-choï et champignons|XG|wok|25|1|L|vplemn|1|tofu ferme, pak-choï, champignons, riz, sauce soja, ail, gingembre
+Wok de tofu, courgettes et poivron|XG|wok|25|1|L|vplemn|1|tofu ferme, courgette, poivron, nouilles de blé, sauce soja, ail, gingembre
+Curry de poulet au lait de coco|MV|curry|35|1|C|pglemn|0|poulet, lait de coco, curry, oignon, riz basmati
+Curry de crevettes|MF|curry|30|3|C|pglen|0|crevettes, lait de coco, curry, tomate, riz basmati
+Curry de légumes et lait de coco|MG|curry|35|1|C|vpglemn|0|chou-fleur, pommes de terre, petits pois, lait de coco, curry
+Curry de saumon|MF|curry|30|3|C|pglen|0|saumon, lait de coco, curry, épinards, riz basmati
+Curry d'agneau|MV|curry|60|3|C|pglemn|0|agneau, tomate, oignon, curry, riz basmati
+Curry de lentilles et patate douce|MG|curry|40|1|C|vpglemn|0|lentilles, patates douces, lait de coco, curry, riz basmati
+Curry de tofu et légumes|MG|curry|35|1|C|vpglemn|0|tofu, courgette, poivron, lait de coco, curry, riz basmati
+Curry de bœuf|MV|curry|60|2|C|pglemn|0|bœuf, lait de coco, oignon, curry, riz basmati
+Curry vert de poulet|MV|curry|35|1|C|pglemn|0|poulet, pâte de curry vert, lait de coco, haricots verts, riz basmati
+Curry de courgettes et aubergines|MG|curry|35|1|L|vpglemn|0|courgettes, aubergines, tomate, lait de coco, curry, riz basmati
+Risotto aux champignons|RG|risotto|35|2|C|vpgemn|0|riz arborio, champignons, parmesan, oignon, bouillon
+Risotto aux asperges|RG|risotto|35|3|C|vpgemn|0|riz arborio, asperges, parmesan, oignon, bouillon
+Risotto aux courgettes et au citron|RG|risotto|35|1|C|vpgemn|0|riz arborio, courgettes, citron, parmesan, bouillon
+Risotto au poulet et aux champignons|RV|risotto|35|2|C|pgemn|0|riz arborio, poulet, champignons, parmesan, bouillon
+Risotto aux tomates et à la mozzarella|RG|risotto|35|2|C|vpgemn|0|riz arborio, tomates, mozzarella, basilic, bouillon
+Risotto au butternut et à la sauge|RG|risotto|35|2|C|vpgemn|0|riz arborio, butternut, sauge, parmesan, bouillon
+Risotto aux épinards|RG|risotto|30|1|C|vpgemn|0|riz arborio, épinards, parmesan, oignon, bouillon
+Risotto aux petits pois et à la menthe|RG|risotto|30|1|C|vpgemn|0|riz arborio, petits pois, menthe, parmesan, bouillon
+Risotto aux crevettes et au citron|RF|risotto|35|3|C|pglen|0|riz arborio, crevettes, citron, persil, bouillon
+Risotto aux poireaux et aux lardons|RV|risotto|35|1|C|gemn|0|riz arborio, poireaux, lardons, parmesan, bouillon
+Pizza reine|XV|pizza|30|1|C|emn|1|pâte à pizza, sauce tomate, mozzarella, jambon, champignons
+Pizza quatre fromages|XG|pizza|30|1|C|vpemn|1|pâte à pizza, sauce tomate, mozzarella, gorgonzola, chèvre, emmental
+Pizza au chorizo|XV|pizza|30|1|C|emn|1|pâte à pizza, sauce tomate, mozzarella, chorizo, oignon
+Pizza chèvre et miel|XG|pizza|30|1|C|vpemn|1|pâte à pizza, crème, mozzarella, chèvre, miel
+Pizza végétarienne|XG|pizza|30|1|C|vpemn|1|pâte à pizza, sauce tomate, mozzarella, poivron, courgette, champignons, olives
+Pizza au thon et aux olives|XF|pizza|30|1|C|pen|1|pâte à pizza, sauce tomate, mozzarella, thon, olives, oignon
+Pizza saumon et aneth|XF|pizza|30|2|C|pen|1|pâte à pizza, crème, mozzarella, saumon fumé, aneth
+Pizza orientale|XV|pizza|30|1|C|pemn|1|pâte à pizza, sauce tomate, mozzarella, merguez, poivron, oignon
+Pizza poulet et pesto|XV|pizza|30|1|C|pem|1|pâte à pizza, pesto, mozzarella, poulet, tomates cerises
+Pizza bolognaise|XV|pizza|30|1|C|pemn|1|pâte à pizza, sauce tomate, mozzarella, bœuf haché, oignon
+Pizza burrata et tomates cerises|XG|pizza|30|2|C|vpemn|1|pâte à pizza, sauce tomate, burrata, tomates cerises, basilic
+Burger au bacon et au cheddar|XV|burger|30|2|C|emn|1|pain burger, steak haché, bacon, cheddar, salade, oignon
+Burger au poulet croustillant|XV|burger|30|2|C|plmn|1|pain burger, poulet, chapelure, salade, tomate, mayonnaise
+Burger au chèvre et au miel|XV|burger|30|2|C|pemn|1|pain burger, steak haché, chèvre, miel, roquette
+Burger végétarien aux haricots rouges|XG|burger|30|2|C|vplemn|1|pain burger, galette de haricots rouges, salade, tomate, avocat
+Burger au saumon et à l'aneth|XF|burger|30|2|C|pen|1|pain burger, saumon, aneth, yaourt, salade
+Burger au bleu et aux noix|XV|burger|30|2|C|pem|1|pain burger, steak haché, gorgonzola, noix, salade
+Burger aux falafels|XG|burger|30|2|C|vplemn|1|pain burger, falafels, houmous, salade, concombre
+Wrap au poulet et aux crudités|XV|wrap|20|1|L|pemn|1|wraps, poulet, salade, tomate, carotte, yaourt
+Wrap au thon et à l'avocat|XF|wrap|15|2|L|plen|1|wraps, thon, avocat, salade, citron
+Wrap aux falafels et au houmous|XG|wrap|20|1|L|vplemn|1|wraps, falafels, houmous, concombre, tomate
+Wrap poulet césar|XV|wrap|20|2|C|pn|1|wraps, poulet, salade romaine, parmesan, sauce césar
+Wrap au jambon et au fromage frais|XV|wrap|10|1|L|emn|1|wraps, jambon, fromage frais, salade, concombre
+Wrap aux crevettes et à l'avocat|XF|wrap|15|3|L|plen|1|wraps, crevettes, avocat, salade, citron vert
+Wrap végétarien aux légumes grillés|XG|wrap|25|1|L|vplemn|1|wraps, courgette, poivron, houmous, roquette
+Tacos de bœuf|XV|wrap|30|1|C|pemn|1|tortillas de blé, bœuf haché, haricots rouges, salade, tomate, fromage râpé
+Tacos de poulet|XV|wrap|30|2|C|pemn|1|tortillas de blé, poulet, poivron, oignon, guacamole, crème
+Tacos aux haricots noirs et à l'avocat|XG|wrap|25|1|L|vplemn|1|tortillas de blé, haricots noirs, avocat, maïs, tomate, coriandre
+Tacos de poisson|XF|wrap|30|2|L|pen|1|tortillas de blé, cabillaud, chou rouge, citron vert, yaourt
+Quesadilla poulet et fromage|XV|wrap|25|1|C|pemn|1|tortillas de blé, poulet, cheddar, poivron, oignon
+Quesadilla aux légumes|XG|wrap|25|1|C|vpemn|1|tortillas de blé, courgette, poivron, maïs, cheddar
+Quesadilla aux haricots noirs|XG|wrap|20|1|C|vpemn|1|tortillas de blé, haricots noirs, maïs, cheddar, coriandre
+Nachos gratinés|XG|wrap|20|1|C|vpgemn|1|tortilla chips, haricots rouges, cheddar, tomate, guacamole
+Fajitas de bœuf|XV|wrap|30|2|C|pemn|1|wraps, bœuf, poivron, oignon, guacamole, crème
+Gnocchis au pesto|G|gnocchis|20|1|C|vpem|0|gnocchis, pesto, parmesan, tomates cerises
+Gnocchis au gorgonzola et aux noix|G|gnocchis|20|1|C|vpem|0|gnocchis, gorgonzola, noix, crème
+Gnocchis aux champignons et à la crème|G|gnocchis|20|1|C|vpemn|0|gnocchis, champignons, crème, persil
+Gnocchis au poulet et à la crème|V|gnocchis|20|1|C|pemn|0|gnocchis, poulet, crème, épinards
+Gnocchis aux courgettes et au chèvre|G|gnocchis|20|1|C|vpemn|0|gnocchis, courgettes, chèvre, crème
+Gnocchis aux lardons et à la crème|V|gnocchis|20|1|C|emn|0|gnocchis, lardons, crème, oignon
+Gnocchis aux légumes rôtis|G|gnocchis|20|1|C|vplemn|0|gnocchis, courgettes, poivron, tomates cerises, huile d'olive
+Gnocchis au saumon et aux épinards|F|gnocchis|20|1|C|pen|0|gnocchis, saumon, épinards, crème, citron
+Quiche au saumon et aux poireaux|F|tarte|55|1|C|pn|0|pâte brisée, saumon, poireaux, œuf, crème
+Quiche au chèvre et aux épinards|G|tarte|55|1|C|vpmn|0|pâte brisée, chèvre, épinards, œuf, crème
+Quiche aux courgettes et à la feta|G|tarte|55|1|C|vpmn|0|pâte brisée, courgettes, feta, œuf, crème
+Quiche au jambon et aux champignons|V|tarte|55|1|C|mn|0|pâte brisée, jambon, champignons, œuf, crème
+Quiche au thon et à la tomate|F|tarte|55|1|C|pn|0|pâte brisée, thon, tomates, œuf, crème
+Tarte flambée|V|tarte|35|1|C|emn|0|pâte à tarte fine, fromage blanc, oignons, lardons, crème
+Tarte fine tomates et chèvre|G|tarte|35|1|C|vpemn|0|pâte feuilletée, tomates, chèvre, thym, huile d'olive
+Tarte aux champignons|G|tarte|55|1|C|vpemn|0|pâte brisée, champignons, crème, échalote, gruyère
+Tarte aux poireaux et au chèvre|G|tarte|55|1|C|vpmn|0|pâte brisée, poireaux, chèvre, œuf, crème
+Tarte aux légumes du soleil|G|tarte|55|1|C|vpemn|0|pâte brisée, courgette, poivron, aubergine, mozzarella, tomate
+Omelette au fromage|G|œufs|20|1|L|vpgmn|0|œufs, gruyère, ciboulette, beurre
+Omelette jambon et fromage|V|œufs|20|1|L|gmn|0|œufs, jambon, gruyère, beurre
+Omelette aux herbes et salade|G|œufs|20|1|L|vpglmn|0|œufs, persil, ciboulette, salade verte
+Œufs cocotte aux épinards|G|œufs|25|1|L|vpgmn|0|œufs, épinards, crème, gruyère
+Œufs brouillés au saumon fumé|F|œufs|15|2|L|pn|0|œufs, saumon fumé, ciboulette, pain, beurre
+Frittata courgettes et feta|G|œufs|30|1|L|vpgmn|0|œufs, courgettes, feta, oignon
+Pipérade basquaise|V|œufs|30|1|L|glmn|0|poivron, tomate, oignon, œufs, jambon cru
+Œufs mimosa et salade|G|œufs|25|1|L|vpglmn|0|œufs, mayonnaise, salade verte, tomates
+Tomates farcies|V|farci|60|1|C|pglemn|0|tomates, bœuf haché, riz, oignon, persil
+Courgettes farcies à la viande|V|farci|60|1|C|pgemn|0|courgettes, bœuf haché, oignon, sauce tomate, gruyère
+Courgettes farcies végétariennes|G|farci|60|1|C|vpgemn|0|courgettes, riz, feta, tomate, menthe
+Poivrons farcis au bœuf et au riz|V|farci|60|1|C|pglemn|0|poivrons, bœuf haché, riz, oignon, sauce tomate
+Poivrons farcis quinoa et feta|G|farci|60|1|C|vpgemn|0|poivrons, quinoa, feta, tomates, persil
+Aubergines farcies au bœuf|V|farci|60|1|C|pgemn|0|aubergines, bœuf haché, oignon, tomate, gruyère
+Champignons farcis épinards et chèvre|G|farci|60|1|C|vpemn|0|champignons, épinards, chèvre, ail, chapelure
+Chou farci|V|farci|60|1|C|glemn|0|chou vert, porc haché, riz, oignon, carottes
+Pommes de terre au four, thon et crème|F|patate|50|1|C|pgen|0|pommes de terre, thon, crème, ciboulette
+Pommes de terre au four, chèvre et lardons|V|patate|50|1|C|gemn|0|pommes de terre, chèvre, lardons, salade verte
+Pommes de terre au four, saumon fumé|F|patate|50|2|C|pgen|0|pommes de terre, saumon fumé, fromage frais, aneth
+Pommes de terre au four, fromage blanc|G|patate|50|1|L|vpgemn|0|pommes de terre, fromage blanc, ciboulette, échalote
+Tartiflette|V|patate|60|2|C|gemn|0|pommes de terre, reblochon, lardons, oignon, crème
+Raclette|V|patate|40|3|C|gemn|0|fromage à raclette, pommes de terre, charcuterie, cornichons
+Truffade|V|patate|45|2|C|gemn|0|pommes de terre, tomme, lardons, ail
+Gratin dauphinois et jambon|V|patate|70|1|C|gemn|0|pommes de terre, crème, ail, jambon
+Poke bowl au thon|XF|bowl|25|2|L|plen|1|riz, thon, avocat, concombre, edamame, sauce soja
+Poke bowl au tofu|XG|bowl|25|1|L|vplemn|1|riz, tofu, avocat, carotte, edamame, sauce soja
+Bowl de falafels et houmous|XG|bowl|25|2|L|vpglemn|1|quinoa, falafels, houmous, concombre, tomates cerises
+Bowl de poulet et avocat|XV|bowl|25|2|L|pgemn|1|riz, poulet, avocat, maïs, tomates cerises, yaourt
+Bowl de saumon grillé|XF|bowl|25|3|L|plen|1|riz, saumon, avocat, concombre, sauce soja
+Bowl de crevettes et mangue|XF|bowl|25|3|L|pglen|1|riz, crevettes, mangue, avocat, citron vert
+Poulet à la crème et aux champignons|V|poulet|35|1|C|pgemn|0|poulet, crème, champignons, riz
+Poulet au citron et au thym|V|poulet|35|1|C|pglemn|0|poulet, citron, thym, pommes de terre, ail
+Poulet au chorizo et aux poivrons|V|poulet|35|1|C|glemn|0|poulet, chorizo, poivron, tomate, riz
+Poulet sauce barbecue et patates douces|V|poulet|35|1|C|pglemn|0|poulet, sauce barbecue, patates douces, maïs
+Poulet au miel et au soja|V|poulet|35|1|C|plemn|0|poulet, miel, sauce soja, riz, brocoli
+Poulet à la provençale|V|poulet|35|1|C|pglemn|0|poulet, tomates, olives, herbes de Provence, pommes de terre
+Poulet au paprika et à la crème|V|poulet|35|1|C|pgemn|0|poulet, paprika, crème, oignon, riz
+Poulet à la forestière|V|poulet|35|1|C|pgemn|0|poulet, champignons, crème, échalote, pommes de terre
+Poulet pané au four et haricots verts|V|poulet|35|1|C|plmn|0|poulet, chapelure, œuf, haricots verts, pommes de terre
+Poulet rôti aux herbes et aux légumes|V|poulet|35|1|C|pglemn|0|poulet, carottes, oignon, thym, pommes de terre
+Cabillaud au pistou et riz|F|poisson|30|2|L|pglen|0|cabillaud, pistou, tomates cerises, riz
+Cabillaud rôti et ratatouille|F|poisson|40|2|L|pglen|0|cabillaud, aubergine, courgette, poivron, tomate
+Saumon grillé et légumes verts|F|poisson|30|3|L|pglen|0|saumon, haricots verts, brocoli, citron, pommes de terre
+Saumon crème et aneth|F|poisson|30|3|L|pgen|0|saumon, crème, aneth, citron, riz
+Saumon en croûte de moutarde|F|poisson|30|3|L|plen|0|saumon, moutarde, chapelure, citron, haricots verts
+Colin sauce citron et riz|F|poisson|30|2|L|pgen|0|colin, citron, crème, persil, riz
+Crevettes sautées à l'ail et aux légumes|F|poisson|20|3|L|pglen|0|crevettes, ail, courgette, poivron, riz
+Thon mi-cuit et haricots verts|F|poisson|20|3|L|pglen|0|thon, haricots verts, échalote, sésame, citron
+Truite aux amandes et pommes de terre|F|poisson|30|2|L|pge|0|truite, amandes, beurre, citron, pommes de terre
+Lieu noir à la tomate et aux olives|F|poisson|30|2|L|pglen|0|lieu noir, tomates, olives, oignon, riz
+Papillote de colin aux légumes|F|poisson|35|2|L|pglen|0|colin, carottes, courgette, citron, aneth
+Nouilles sautées au poulet|XV|nouilles|25|1|C|plemn|1|nouilles de blé, poulet, carottes, chou, sauce soja
+Nouilles sautées aux crevettes|XF|nouilles|25|2|C|plen|1|nouilles de blé, crevettes, poivron, oignon vert, sauce soja
+Nouilles sautées aux légumes et à l'œuf|XG|nouilles|25|1|C|vplmn|1|nouilles de blé, œuf, carottes, chou, sauce soja
+Nouilles sautées au bœuf|XV|nouilles|25|2|C|plemn|1|nouilles de blé, bœuf, brocoli, ail, sauce soja
+Nouilles de riz au tofu et aux cacahuètes|XG|nouilles|25|1|C|vpglem|1|nouilles de riz, tofu, carottes, cacahuètes, citron vert
+Yakisoba au porc|XV|nouilles|25|1|C|lemn|1|nouilles de blé, porc, chou, carottes, sauce soja
+Bruschetta tomates et mozzarella|XG|sandwich|15|1|L|vpemn|1|pain, tomates, mozzarella, basilic, huile d'olive
+Bruschetta chèvre et miel|XG|sandwich|15|1|L|vpem|1|pain, chèvre, miel, noix
+Tartines avocat et œuf|XG|sandwich|15|1|L|vplmn|1|pain, avocat, œuf, citron, piment
+Tartines saumon fumé et fromage frais|XF|sandwich|15|1|L|pen|1|pain, saumon fumé, fromage frais, aneth
+Sandwich poulet et crudités|XV|sandwich|15|1|L|plmn|1|pain, poulet, salade, tomate, mayonnaise
+Sandwich thon et crudités|XF|sandwich|15|1|L|pln|1|pain, thon, salade, tomate, œuf
+Panini jambon et mozzarella|XV|sandwich|15|1|L|em|1|pain, jambon, mozzarella, tomate, pesto
+Panini poulet et pesto|XV|sandwich|15|1|L|pem|1|pain, poulet, mozzarella, pesto, tomate
+Tartines champignons et chèvre|XG|sandwich|15|1|L|vpemn|1|pain, champignons, chèvre, persil, ail
+Croque végétarien aux épinards|XG|sandwich|15|1|L|vpemn|1|pain de mie, épinards, chèvre, béchamel, gruyère
+Poulet grillé et riz|V|poêlée|40|1|C|pgemn|0|poulet, riz, beurre, persil
+Poulet grillé et purée|V|poêlée|40|1|C|pgemn|0|poulet, pommes de terre, lait, beurre
+Poulet grillé et haricots verts|V|poêlée|30|1|L|pglemn|0|poulet, haricots verts, ail
+Poulet grillé et ratatouille|V|poêlée|30|1|L|pglemn|0|poulet, aubergine, courgette, poivron, tomate
+Poulet grillé et légumes rôtis|V|poêlée|30|1|L|pglemn|0|poulet, carottes, courgette, poivron, huile d'olive
+Poulet grillé et pommes de terre sautées|V|poêlée|40|1|C|pglemn|0|poulet, pommes de terre, ail, persil
+Escalope de dinde et haricots verts|V|poêlée|25|1|L|pglemn|0|escalope de dinde, haricots verts, ail
+Escalope de dinde et ratatouille|V|poêlée|25|1|L|pglemn|0|escalope de dinde, aubergine, courgette, poivron, tomate
+Escalope de dinde et légumes rôtis|V|poêlée|25|1|L|pglemn|0|escalope de dinde, carottes, courgette, poivron, huile d'olive
+Escalope de dinde et pommes de terre sautées|V|poêlée|35|1|C|pglemn|0|escalope de dinde, pommes de terre, ail, persil
+Escalope de dinde et courgettes sautées|V|poêlée|25|1|L|pglemn|0|escalope de dinde, courgettes, ail, persil
+Escalope de dinde et semoule|V|poêlée|35|1|C|pemn|0|escalope de dinde, semoule, beurre
+Steak haché et légumes rôtis|V|poêlée|20|1|L|pglemn|0|steak haché, carottes, courgette, poivron, huile d'olive
+Steak haché et pommes de terre sautées|V|poêlée|30|1|C|pglemn|0|steak haché, pommes de terre, ail, persil
+Steak haché et courgettes sautées|V|poêlée|20|1|L|pglemn|0|steak haché, courgettes, ail, persil
+Steak haché et semoule|V|poêlée|30|1|C|pemn|0|steak haché, semoule, beurre
+Steak haché et poêlée de champignons|V|poêlée|20|1|L|pglemn|0|steak haché, champignons, ail, persil
+Steak haché et carottes rôties|V|poêlée|20|1|L|pglemn|0|steak haché, carottes, cumin, huile d'olive
+Filet de porc et courgettes sautées|V|poêlée|35|1|L|glemn|0|filet de porc, courgettes, ail, persil
+Filet de porc et semoule|V|poêlée|45|1|C|emn|0|filet de porc, semoule, beurre
+Filet de porc et poêlée de champignons|V|poêlée|35|1|L|glemn|0|filet de porc, champignons, ail, persil
+Filet de porc et carottes rôties|V|poêlée|35|1|L|glemn|0|filet de porc, carottes, cumin, huile d'olive
+Filet de porc et brocoli vapeur|V|poêlée|35|1|L|glemn|0|filet de porc, brocoli, citron
+Filet de porc et tagliatelles|V|poêlée|45|1|C|emn|0|filet de porc, tagliatelles, beurre
+Saumon grillé et poêlée de champignons|F|poêlée|25|3|L|pglen|0|saumon, champignons, ail, persil
+Saumon grillé et carottes rôties|F|poêlée|25|3|L|pglen|0|saumon, carottes, cumin, huile d'olive
+Saumon grillé et brocoli vapeur|F|poêlée|25|3|L|pglen|0|saumon, brocoli, citron
+Saumon grillé et tagliatelles|F|poêlée|35|3|C|pen|0|saumon, tagliatelles, beurre
+Saumon grillé et riz|F|poêlée|35|3|C|pgen|0|saumon, riz, beurre, persil
+Saumon grillé et purée|F|poêlée|35|3|C|pgen|0|saumon, pommes de terre, lait, beurre
+Cabillaud poêlé et brocoli vapeur|F|poêlée|25|2|L|pglen|0|cabillaud, brocoli, citron
+Cabillaud poêlé et tagliatelles|F|poêlée|35|2|C|pen|0|cabillaud, tagliatelles, beurre
+Cabillaud poêlé et riz|F|poêlée|35|2|C|pgen|0|cabillaud, riz, beurre, persil
+Cabillaud poêlé et purée|F|poêlée|35|2|C|pgen|0|cabillaud, pommes de terre, lait, beurre
+Cabillaud poêlé et haricots verts|F|poêlée|25|2|L|pglen|0|cabillaud, haricots verts, ail
+Cabillaud poêlé et ratatouille|F|poêlée|25|2|L|pglen|0|cabillaud, aubergine, courgette, poivron, tomate
+Colin à la plancha et riz|F|poêlée|30|2|C|pgen|0|colin, riz, beurre, persil
+Colin à la plancha et purée|F|poêlée|30|2|C|pgen|0|colin, pommes de terre, lait, beurre
+Colin à la plancha et haricots verts|F|poêlée|20|2|L|pglen|0|colin, haricots verts, ail
+Colin à la plancha et ratatouille|F|poêlée|20|2|L|pglen|0|colin, aubergine, courgette, poivron, tomate
+Colin à la plancha et légumes rôtis|F|poêlée|20|2|L|pglen|0|colin, carottes, courgette, poivron, huile d'olive
+Colin à la plancha et pommes de terre sautées|F|poêlée|30|2|C|pglen|0|colin, pommes de terre, ail, persil
+Crevettes sautées et haricots verts|F|poêlée|15|3|L|pglen|0|crevettes, haricots verts, ail
+Crevettes sautées et ratatouille|F|poêlée|15|3|L|pglen|0|crevettes, aubergine, courgette, poivron, tomate
+Crevettes sautées et légumes rôtis|F|poêlée|15|3|L|pglen|0|crevettes, carottes, courgette, poivron, huile d'olive
+Crevettes sautées et pommes de terre sautées|F|poêlée|25|3|C|pglen|0|crevettes, pommes de terre, ail, persil
+Crevettes sautées et courgettes sautées|F|poêlée|15|3|L|pglen|0|crevettes, courgettes, ail, persil
+Crevettes sautées et semoule|F|poêlée|25|3|C|pen|0|crevettes, semoule, beurre
+Côtes de porc et légumes rôtis|V|poêlée|30|1|L|glemn|0|côtes de porc, carottes, courgette, poivron, huile d'olive
+Côtes de porc et pommes de terre sautées|V|poêlée|40|1|C|glemn|0|côtes de porc, pommes de terre, ail, persil
+Côtes de porc et courgettes sautées|V|poêlée|30|1|L|glemn|0|côtes de porc, courgettes, ail, persil
+Côtes de porc et semoule|V|poêlée|40|1|C|emn|0|côtes de porc, semoule, beurre
+Côtes de porc et poêlée de champignons|V|poêlée|30|1|L|glemn|0|côtes de porc, champignons, ail, persil
+Côtes de porc et carottes rôties|V|poêlée|30|1|L|glemn|0|côtes de porc, carottes, cumin, huile d'olive`;
+const nrm=s=>String(s||'').toLowerCase().replace(/œ/g,'oe').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+let _DB=null;
+const platsDB=()=>_DB||(_DB=PLATS.split('\n').filter(Boolean).map(l=>{const q=l.split('|');return{n:q[0],c:q[1],f:q[2],t:+q[3],b:+q[4],w:q[5],fl:q[6],x:q[7]==='1',ing:q[8],h:nrm(q[0]+' '+q[8])}}));
+const CARROT=(w,h)=>`<svg viewBox="0 0 100 120" width="${w}" height="${h}" role="img" aria-label="Charlotte la carotte"><g stroke="#14121C" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M50 32 C40 16 30 14 26 6 C38 8 48 16 50 32Z" fill="#1F9D6B"/><path d="M50 32 C50 14 52 8 58 2 C60 14 56 24 50 32Z" fill="#1F9D6B"/><path d="M50 32 C60 20 70 16 76 12 C74 24 62 30 50 32Z" fill="#1F9D6B"/><path d="M33 62 Q23 64 21 73" fill="none"/><path d="M67 62 Q77 64 79 73" fill="none"/><path d="M50 112 C36 94 28 62 33 42 C36 30 64 30 67 42 C72 62 64 94 50 112Z" fill="#FF7A3D"/><path d="M36 52 H45 M55 70 H64 M38 82 H46" fill="none" stroke="#C2410C" stroke-width="2.5"/><circle cx="43" cy="58" r="3.4" fill="#14121C" stroke="none"/><circle cx="57" cy="58" r="3.4" fill="#14121C" stroke="none"/><circle cx="44" cy="57" r="1.1" fill="#FFF6EC" stroke="none"/><circle cx="58" cy="57" r="1.1" fill="#FFF6EC" stroke="none"/><path d="M44 66 Q50 72 56 66" fill="none"/><ellipse cx="38" cy="65" rx="4" ry="2.5" fill="#FFB48F" stroke="none"/><ellipse cx="62" cy="65" rx="4" ry="2.5" fill="#FFB48F" stroke="none"/></g></svg>`;
+const ENV=[['pates','Pâtes'],['riz','Riz'],['viande','Viande'],['poisson','Poisson'],['veg','Végétarien'],['soupe','Soupe'],['salade','Salade'],['mijote','Plat mijoté'],['rapide','Rapide'],['resto','Façon restaurant']];
+const ENVC={pates:'P',viande:'V',poisson:'F',veg:'G',soupe:'S',salade:'A',mijote:'M'};
+const DIETS=[['v','Végétarien'],['p','Sans porc'],['g','Sans gluten'],['l','Sans lactose'],['e','Sans œuf'],['m','Sans poisson ni fruits de mer'],['n','Sans fruits à coque']];
+const WZ={};
+const wzReset=()=>Object.assign(WZ,{step:0,slots:'both',envies:[],diets:[],avoid:'',time:'any',bud:3,want:'',replace:false,plan:[],pool:[]});
+const terms=x=>String(x||'').split(/[,;\n]|\bet\b/).map(y=>nrm(y).trim()).filter(y=>y.length>=3);
+const envHit=(d,k)=>k==='rapide'?d.t<=25:k==='resto'?d.x:k==='riz'?(d.c.includes('R')||/\briz\b/.test(d.h)):d.c.includes(ENVC[k]);
+const wzMeals=()=>WZ.slots==='midi'?['midi']:WZ.slots==='soir'?['soir']:['midi','soir'];
+function wzSave(){const a=$('#wz-avoid'),w=$('#wz-want');if(a)WZ.avoid=a.value;if(w)WZ.want=w.value}
+const chip=(act,val,label,on)=>`<button type="button" class="pk ${on?'on':''}" data-act="${act}" data-val="${esc(String(val))}" aria-pressed="${!!on}">${esc(label)}</button>`;
+const wzBub=t=>`<div class="wz-top"><span class="car">${CARROT(60,72)}</span><div class="bub2">${esc(t)}</div></div>`;
+const wzNav=l=>`<div class="sheet-actions"><button class="btn" data-act="wzBack">Retour</button><button class="btn primary" data-act="wzNext">${l||'Suivant'}</button></div>`;
+function wzView(){
+  const st=WZ.step;
+  if(st===0)return wzBub('Salut, moi c’est Charlotte ! Ces idées sont pour… ?')+`<div class="wrapchips wz-ch">${chip('wzSlots','midi','Le midi',false)}${chip('wzSlots','soir','Le soir',false)}${chip('wzSlots','both','Les deux',false)}</div>`;
+  if(st===1)return wzBub('Qu’est-ce qui vous fait envie cette semaine ?')+`<div class="wrapchips wz-ch">${ENV.map(([k,l])=>chip('wzEnv',k,l,WZ.envies.includes(k))).join('')}</div><p class="hint">Plusieurs choix possibles. Rien de précis ? Passez à la suite.</p>`+wzNav();
+  if(st===2)return wzBub('Des contraintes ou des allergies ?')+`<div class="wrapchips wz-ch">${DIETS.map(([k,l])=>chip('wzDiet',k,l,WZ.diets.includes(k))).join('')}</div><label for="wz-avoid">Aliments à éviter</label><input id="wz-avoid" value="${esc(WZ.avoid)}" placeholder="champignons, coriandre…" autocomplete="off"><p class="hint">Ces étiquettes sont indicatives : en cas d’allergie, vérifiez toujours les ingrédients.</p>`+wzNav();
+  if(st===3)return wzBub('Combien de temps pour cuisiner, et quel budget ?')+`<label>Temps de préparation</label><div class="wrapchips wz-ch">${[['quick','Rapide (≤ 25 min)'],['normal','≤ 45 min'],['any','Peu importe']].map(([k,l])=>chip('wzTime',k,l,WZ.time===k)).join('')}</div><label>Budget par repas</label><div class="wrapchips wz-ch">${[[1,'€ économique'],[2,'€€ moyen'],[3,'€€€ peu importe']].map(([k,l])=>chip('wzBud',k,l,WZ.bud===k)).join('')}</div>`+wzNav();
+  if(st===4)return wzBub('Des ingrédients à utiliser ? (facultatif)')+`<label for="wz-want">Ingrédients à cuisiner</label><input id="wz-want" value="${esc(WZ.want)}" placeholder="poulet, courgettes…" autocomplete="off"><div class="wrapchips wz-ch" style="margin-top:14px">${chip('wzRep','x','Remplacer aussi les repas déjà remplis',WZ.replace)}</div>`+wzNav('Concocte les menus');
+  return wzPreview();
+}
+function wzPreview(){
+  const P=WZ.plan,got=P.filter(p=>p.dish),back=`<div class="sheet-actions"><button class="btn" data-act="wzBack">Retour</button></div>`;
+  if(!P.length)return wzBub('Rien à composer : tous les repas à venir de cette semaine sont déjà remplis. Active « Remplacer aussi les repas déjà remplis » pour les refaire.')+back;
+  if(!got.length)return wzBub('Je n’ai rien trouvé avec ces critères. Assouplis le temps, le budget ou les aliments à éviter.')+back;
+  const days=[...new Set(P.map(p=>p.date))];
+  const cards=days.map(d=>`<div class="pv-day"><b>${esc(fmtLong(d))}</b>${P.map((p,i)=>p.date!==d?'':`<div class="pv-row"><span class="pv-s">${p.slot==='midi'?'Midi':'Soir'}</span><div class="pv-t"><b>${p.dish?esc(p.dish.n):'Aucune idée'}</b>${p.dish?`<small>${p.dish.t} min · ${'€'.repeat(p.dish.b)}</small>`:''}</div><div class="pv-b"><button class="pvb" data-act="wzSwap" data-i="${i}">Changer</button><button class="pvb ${p.kept?'on':''}" data-act="wzKeep" data-i="${i}" aria-pressed="${!!p.kept}">${p.kept?'Gardé ✓':'Garder'}</button></div></div>`).join('')}</div>`).join('');
+  return wzBub(got.length<P.length?`J’ai trouvé ${got.length} idées pour ${P.length} repas.`:`Voilà ${P.length} repas pour la semaine !`)+cards+`<div class="sheet-actions"><button class="btn" data-act="closeSheet">Annuler</button><button class="btn" data-act="wzAgain">Relancer</button><button class="btn primary" data-act="wzAccept">Accepter</button></div>`;
+}
+function wzRender(){const b=$('#wz');if(b)b.innerHTML=wzView()}
+function wzPool(){
+  const av=terms(WZ.avoid),maxT=WZ.time==='quick'?25:WZ.time==='normal'?45:999;
+  return platsDB().filter(d=>WZ.diets.every(k=>d.fl.includes(k))&&d.t<=maxT&&d.b<=WZ.bud&&!av.some(a=>d.h.includes(a)));
+}
+function wzPick(P,i,pool,skip){
+  const ws=ui.weekStart,we=addDays(ws,6),used=new Set(S.meals.filter(m=>m.date>=ws&&m.date<=we&&m.text).map(m=>nrm(m.text))),fam={};
+  P.forEach((q,j)=>{if(j!==i&&q.dish){used.add(nrm(q.dish.n));fam[q.dish.f]=(fam[q.dish.f]||0)+1}});
+  if(skip)used.add(nrm(skip.n));
+  let cand=[];
+  for(const lim of [2,3,5,99]){cand=pool.filter(d=>!used.has(nrm(d.n))&&(fam[d.f]||0)<lim);if(cand.length)break}
+  if(!cand.length)return null;
+  const prev=P[i-1]&&P[i-1].dish,same=P.find((q,j)=>j!==i&&q.date===P[i].date&&q.dish),want=terms(WZ.want);
+  const sc=d=>{let v=Math.random()*3;if(WZ.envies.some(k=>envHit(d,k)))v+=4;want.forEach(w=>{if(d.h.includes(w))v+=3});if(prev&&prev.w!==d.w)v+=1.5;if(same&&same.dish.w!==d.w)v+=1.5;if(P[i].slot==='midi'&&d.w==='L')v+=.7;if(prev&&prev.c[0]===d.c[0])v-=1;return v};
+  return cand.map(d=>[sc(d),d]).sort((a,b)=>b[0]-a[0])[0][1];
+}
+function wzBuild(keep){
+  const ws=ui.weekStart,t=todayStr(),old=keep?WZ.plan:[],P=[];
+  for(let i=0;i<7;i++){
+    const d=addDays(ws,i);if(d<t)continue;
+    for(const sl of wzMeals()){
+      const id=d+'_'+sl,cur=S.meals.find(m=>m.id===id);
+      if(cur&&cur.text&&!WZ.replace)continue;
+      const o=old.find(q=>q.id===id);
+      P.push(o&&o.kept?o:{date:d,slot:sl,id,prev:cur||null,dish:null,kept:false});
+    }
+  }
+  let pool=wzPool();
+  if(WZ.envies.length){const m=pool.filter(d=>WZ.envies.some(k=>envHit(d,k)));if(m.length>=8)pool=m}
+  WZ.pool=pool;
+  P.forEach((q,i)=>{if(!q.kept)q.dish=wzPick(P,i,pool)});
+  WZ.plan=P;
+}
+const tog=(a,v)=>{const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1)};
+ACT.charAsk=()=>{wzReset();openSheet('Charlotte la carotte','<div id="wz"></div>');wzRender()};
+ACT.wzSlots=el=>{WZ.slots=el.dataset.val;WZ.step=1;wzRender()};
+ACT.wzEnv=el=>{tog(WZ.envies,el.dataset.val);wzRender()};
+ACT.wzDiet=el=>{wzSave();tog(WZ.diets,el.dataset.val);wzRender()};
+ACT.wzTime=el=>{WZ.time=el.dataset.val;wzRender()};
+ACT.wzBud=el=>{WZ.bud=+el.dataset.val;wzRender()};
+ACT.wzRep=()=>{wzSave();WZ.replace=!WZ.replace;wzRender()};
+ACT.wzBack=()=>{wzSave();WZ.step=Math.max(0,WZ.step-1);wzRender()};
+ACT.wzNext=()=>{wzSave();WZ.step++;if(WZ.step===5)wzBuild(false);wzRender()};
+ACT.wzAgain=()=>{wzBuild(true);wzRender()};
+ACT.wzKeep=el=>{const q=WZ.plan[+el.dataset.i];if(q&&q.dish){q.kept=!q.kept;wzRender()}};
+ACT.wzSwap=el=>{
+  const i=+el.dataset.i,q=WZ.plan[i],d=wzPick(WZ.plan,i,WZ.pool,q.dish);
+  if(!d){toast('Plus d’autre idée avec ces critères.');return}
+  q.dish=d;q.kept=false;wzRender();
+};
+ACT.wzAccept=async()=>{
+  const items=WZ.plan.filter(q=>q.dish);if(!items.length)return;
+  const batch={n:items.length,items:items.map(q=>({id:q.id,prev:q.prev}))};
+  closeSheet();
+  for(const q of items)await put('meals',q.id,{date:q.date,slot:q.slot,text:q.dish.n,ingr:q.dish.ing,by:ME});
+  ui.lastBatch=batch;render();toast(`${items.length} repas ajoutés au Menu`);
+};
+ACT.charUndo=async()=>{
+  const b=ui.lastBatch;if(!b)return;ui.lastBatch=null;
+  for(const it of b.items){if(it.prev){const {id:_i,...rest}=it.prev;await put('meals',it.id,rest)}else await del('meals',it.id)}
+  render();toast('Suggestions annulées');
+};
+function charlotteCard(){
+  const ws=ui.weekStart,t=todayStr();let open=0,tot=0;
+  for(let i=0;i<7;i++){const d=addDays(ws,i);if(d<t)continue;for(const sl of ['midi','soir']){tot++;const m=S.meals.find(x=>x.id===d+'_'+sl);if(!(m&&m.text))open++}}
+  const msg=ui.lastBatch?`Voilà ! ${ui.lastBatch.n} repas sont dans ton Menu.`:!tot?'Cette semaine est passée : change de semaine avec les flèches.':open===14?'Salut ! On mange quoi cette semaine ?':open>0?`Il reste ${open} repas à composer cette semaine.`:'Ta semaine est prête. Bon appétit !';
+  return `<section class="char"><span class="car">${CARROT(84,101)}</span><div class="cb"><div class="bub2">${esc(msg)}</div><button class="btn cbtn" data-act="charAsk">Demande-moi des idées</button>${ui.lastBatch?'<button class="cundo" data-act="charUndo">Annuler ces suggestions</button>':''}</div></section>`;
+}
 
 /* ---------- Écrans de connexion ---------- */
 function logoSvg(){
