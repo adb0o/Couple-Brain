@@ -609,6 +609,26 @@ h1,h2,h3{font-weight:800;letter-spacing:-.03em}
 .pv-b{display:flex;flex-direction:column;gap:6px}.pvb{min-height:40px;padding:0 12px;border-radius:99px;border:1.5px solid var(--line);font-size:13px;font-weight:700}
 .pvb.on{background:var(--c2);color:#14121C;border-color:transparent}
 @media (prefers-reduced-motion: reduce){.car{animation:none}}
+
+/* ===== Mona, la carte bancaire ===== */
+.cbform{margin:0 0 16px}.cbform label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+.cbt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}.cbt:has(.cbp:only-child){grid-template-columns:1fr}
+.cbp{border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:2px;background:var(--c1);color:var(--onc1)}
+.cbp[style*="--c:var(--c2)"]{background:var(--c2);color:var(--onc2)}
+.cbp span{font-size:13px;font-weight:700}.cbp b{font:800 22px var(--f-d);letter-spacing:-.02em}
+.cbtools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 6px}
+.subhead.cf::first-letter{text-transform:uppercase}
+.cbrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:2px dashed var(--line)}
+.cbrow:last-child{border-bottom:0}
+.cbrow .m{flex:1;min-width:0}.cbrow .m b{display:block;font-weight:600;overflow-wrap:anywhere}.cbrow .m small{color:var(--muted);font-size:13px}
+.catchip{flex:none;min-height:32px;padding:0 10px;border-radius:99px;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--c2) 26%,transparent)}
+.cbrow .amt{flex:none;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:800;font-size:15px}
+.rp-tot{font:800 34px var(--f-d);letter-spacing:-.03em;margin:4px 0 12px}.rp-tot em,.rp-h em{font:700 13px var(--f-b);font-style:normal}
+em.up{color:#C2410C}em.dn{color:var(--ok)}
+.rp-c{margin:0 0 12px}.rp-h{display:flex;justify-content:space-between;gap:8px}.rp-h b{font-weight:700}
+.rp-bar{display:flex;height:10px;border-radius:99px;background:var(--line);overflow:hidden;margin:6px 0 2px}.rp-bar i{display:block;height:100%}
+.rp-l{list-style:none;margin:0 0 6px;padding:0}.rp-l li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:2px dashed var(--line)}
+.rp-adv{margin:0;padding:0 0 0 20px}.rp-adv li{margin:0 0 10px}
 </style>
 </head>
 <body>
@@ -616,6 +636,7 @@ h1,h2,h3{font-weight:800;letter-spacing:-.03em}
 <nav id="tabs" aria-label="Navigation"></nav>
 <div id="sheet"></div>
 <input type="file" id="photo-input" accept="image/*" aria-hidden="true" tabindex="-1" style="position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0">
+<input type="file" id="cb-csv" accept=".csv,text/csv,text/plain" aria-hidden="true" tabindex="-1" style="position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0">
 <div id="viewer" role="dialog" aria-modal="true" aria-label="Photo en grand"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -665,11 +686,11 @@ const IC={
 const ic=(n,s=22)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 
 /* ---------- État ---------- */
-const S={people:[],lists:[],items:[],pots:[],expenses:[],notes:[],events:[],meals:[],wishes:[],meta:[],photos:[],synckeys:[],inbox:[]};
+const S={people:[],lists:[],items:[],pots:[],expenses:[],notes:[],events:[],meals:[],wishes:[],meta:[],photos:[],synckeys:[],inbox:[],cbkeys:[],cbinbox:[],cbtx:[],cbmeta:[]};
 const loaded={};
 let db=null,ME='moi',SHARED=false,READONLY=false,onboarded=false,drawTimer=null,drawId=null;
 let FBCFG=null,auth=null,fs=null,M=null,AM=null,CID=null,COUPLE=null,USER_EMAIL='',UNSUBS=[],gate='loading';
-const ui={photoIdx:0,viewIdx:0,photoPauseUntil:0,photoFocus:null,authMode:'login',gateErr:'',email:'',tab:'home',list:null,pot:'general',agenda:'cal',us:'mots',month:todayStr().slice(0,7),sel:todayStr(),weekStart:mondayOf(todayStr()),wishKind:'all'};
+const ui={money:'split',photoIdx:0,viewIdx:0,photoPauseUntil:0,photoFocus:null,authMode:'login',gateErr:'',email:'',tab:'home',list:null,pot:'general',agenda:'cal',us:'mots',month:todayStr().slice(0,7),sel:todayStr(),weekStart:mondayOf(todayStr()),wishKind:'all'};
 const KINDS=[['resto','🍽️','Resto'],['film','🎬','Film'],['lieu','📍','Lieu'],['autre','✨','Autre']];
 /* Leclerc Drive : changez l'adresse ici si vous changez de magasin */
 const DRIVE_URL='https://m-courses.leclercdrive.fr/magasin-997371-000009-paris';
@@ -827,6 +848,7 @@ function Lists(){
 }
 
 function Money(){
+  if(ui.money==='card')return head('Comptes')+seg('money',[['split','Partage'],['card','Carte bancaire']],'card')+cardView();
   const pots=[{id:'general',title:'Quotidien',emoji:'🏠'},...S.pots.slice().sort((a,b)=>a.ts-b.ts)];
   if(!pots.find(p=>p.id===ui.pot))ui.pot='general';
   const pot=pots.find(p=>p.id===ui.pot),oid=otherId();
@@ -855,7 +877,7 @@ function Money(){
   };
   const list=Object.keys(groups).sort().reverse().map(k=>`<p class="subhead cap">${esc(new Date(k+'-01T12:00:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'}))}</p><div class="group">${groups[k].map(row).join('')}</div>`).join('')
     ||`<div class="empty"><h3>Aucune dépense</h3><p>Ajoutez ce que l’un de vous a payé : le solde se calcule tout seul.</p></div>`;
-  return head('Comptes')+`<div class="chips covers">${covers}<button class="cover add" data-act="potSheet"><span class="ce">＋</span><b>Cagnotte</b></button></div>${hero}
+  return head('Comptes')+seg('money',[['split','Partage'],['card','Carte bancaire']],'split')+`<div class="chips covers">${covers}<button class="cover add" data-act="potSheet"><span class="ce">＋</span><b>Cagnotte</b></button></div>${hero}
   <div class="btnrow" style="margin-top:0"><button class="btn primary" data-act="expSheet">Ajouter une dépense</button>${pot.id!=='general'?`<button class="btn" data-act="potSheet" data-id="${pot.id}">Modifier</button>`:''}</div>${list}`;
 }
 
@@ -2104,6 +2126,264 @@ function charlotteCard(){
   return `<section class="char"><span class="car">${CARROT(84,101)}</span><div class="cb"><div class="bub2">${esc(msg)}</div><button class="btn cbtn" data-act="charAsk">Demande-moi des idées</button>${ui.lastBatch?'<button class="cundo" data-act="charUndo">Annuler ces suggestions</button>':''}</div></section>`;
 }
 
+/* ---------- Mona, la carte bancaire : dépenses CB chiffrées de bout en bout ---------- */
+const CB={key:null,keyLoaded:false,checked:false,tx:[],cache:new Map(),rules:{},budgets:{},busy:false,rm:'',csv:null};
+function cbReset(){Object.assign(CB,{key:null,keyLoaded:false,checked:false,tx:[],rules:{},budgets:{},busy:false,csv:null});CB.cache.clear()}
+const CB_HIDE=()=>{try{return localStorage.getItem('cb-hide')==='1'}catch(e){return false}};
+const fmC=c=>CB_HIDE()?'••• €':eur.format(c/100);
+const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),unb64=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
+function idbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open('cb-keys',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function idbGet(k){try{const d=await idbOpen();const v=await new Promise(res=>{const q=d.transaction('k').objectStore('k').get(k);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)});d.close();return v}catch(e){return null}}
+async function idbSet(k,v){try{const d=await idbOpen();await new Promise((res,rej)=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,k);t.oncomplete=res;t.onerror=()=>rej(t.error)});d.close()}catch(e){}}
+async function deriveKey(pass,salt,it){const m=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:it,hash:'SHA-256'},m,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function enc(obj){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},CB.key,new TextEncoder().encode(JSON.stringify(obj))),o=new Uint8Array(12+ct.byteLength);o.set(iv);o.set(new Uint8Array(ct),12);return b64(o)}
+async function dec(x){const o=unb64(x),pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:o.slice(0,12)},CB.key,o.slice(12));return JSON.parse(new TextDecoder().decode(pt))}
+const CATS=['Courses','Restaurants','Transports','Santé','Abonnements','Loisirs','Shopping','Logement','Voyages','Divers'];
+const CATK=[
+['Abonnements','netflix,spotify,disney,prime video,amazon prime,canal+,canal plus,apple.com,itunes,icloud,youtube,deezer,orange,sfr,bouygues,free mobile,freebox,ovh,adobe,microsoft,dropbox,openai,chatgpt,basic fit,basic-fit,fitness park,neoness,google one'],
+['Voyages','airbnb,booking,hotel,ibis,accor,easyjet,ryanair,transavia,air france,expedia,lastminute,vueling'],
+['Restaurants','restaurant,resto,mcdo,mcdonald,burger king,kfc,quick,brasserie,cafe,starbucks,pizz,sushi,kebab,deliveroo,uber eats,just eat,subway,bistro,tacos,pub,traiteur,creperie,snack,five guys'],
+['Transports','sncf,ratp,navigo,uber,bolt,total,esso,shell,carburant,station,peage,vinci,sanef,parking,indigo,blablacar,getaround,velib,lime,trainline,dott'],
+['Courses','leclerc,carrefour,auchan,lidl,intermarche,monoprix,franprix,casino,picard,aldi,biocoop,naturalia,grand frais,super u,systeme u,cora,boulangerie,boucherie,primeur,marche,drive,netto,thiriet'],
+['Santé','pharmacie,medecin,docteur,dentiste,opticien,doctolib,laboratoire,hopital,clinique,kine,osteo,optique'],
+['Logement','edf,engie,loyer,ikea,leroy merlin,castorama,brico,maisons du monde,conforama,assurance,syndic,veolia'],
+['Loisirs','cinema,ugc,pathe,gaumont,fnac,steam,playstation,nintendo,xbox,theatre,concert,ticketmaster,parc,bowling,escape,musee,cultura,librairie,kinepolis'],
+['Shopping','amazon,zara,uniqlo,decathlon,sephora,zalando,vinted,cdiscount,darty,boulanger,action,kiabi,primark,nocibe,shein,aliexpress,nike,adidas,celio,galeries lafayette']
+].map(([c,w])=>[c,w.split(',')]);
+const cbKey=m=>nrm(m).replace(/[^a-z0-9]+/g,' ').trim().slice(0,24);
+function cbCat(m){const k=nrm(m),o=CB.rules[cbKey(m)];if(o)return o;for(const [c,ws] of CATK)if(ws.some(w=>k.includes(w)))return c;return 'Divers'}
+const parseAmount=x=>{let t=String(x||'').replace(/[\s\u00a0]/g,'').replace(/[^0-9,.\-]/g,'');if(!t)return 0;const lc=t.lastIndexOf(','),ld=t.lastIndexOf('.');t=lc>ld?t.replace(/\./g,'').replace(',','.'):t.replace(/,/g,'');const n=parseFloat(t);return isFinite(n)?n:0};
+function parseCardPayload(text){
+  const q=String(text||'').split('###').map(x=>x.trim());if(q.length<2)return null;
+  const a=parseAmount(q[1]);if(!a)return null;
+  let d=todayStr(),tm='';const mm=/(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}))?/.exec(q[3]||'');if(mm){d=mm[1];tm=mm[2]||''}
+  return{m:(q[0]||'Inconnu').slice(0,60),a:Math.round(Math.abs(a)*100),d,tm};
+}
+const MONA=(w,h)=>`<svg viewBox="0 0 100 120" width="${w}" height="${h}" role="img" aria-label="Mona, la carte bancaire"><g stroke="#14121C" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M20 78 Q10 80 8 90" fill="none"/><path d="M80 78 Q90 80 92 90" fill="none"/><rect x="20" y="16" width="60" height="92" rx="10" fill="#FF7A3D"/><rect x="20" y="30" width="60" height="12" fill="#14121C"/><rect x="28" y="52" width="16" height="12" rx="3" fill="#FFD9BF"/><path d="M62 54 H72 M62 60 H70" fill="none" stroke="#C2410C" stroke-width="2.5"/><circle cx="40" cy="82" r="3.4" fill="#14121C" stroke="none"/><circle cx="60" cy="82" r="3.4" fill="#14121C" stroke="none"/><circle cx="41" cy="81" r="1.1" fill="#FFF6EC" stroke="none"/><circle cx="61" cy="81" r="1.1" fill="#FFF6EC" stroke="none"/><path d="M43 91 Q50 97 57 91" fill="none"/><ellipse cx="34" cy="89" rx="4" ry="2.5" fill="#FFB48F" stroke="none"/><ellipse cx="66" cy="89" rx="4" ry="2.5" fill="#FFB48F" stroke="none"/></g></svg>`;
+const cbPeople=()=>{const o=S.people.find(q=>q.id!==ME);return o?[ME,o.id]:[ME]};
+const curMonth=()=>todayStr().slice(0,7);
+const addMonth=(mo,n)=>{const [y,m]=mo.split('-').map(Number),d=new Date(y,m-1+n,1);return d.getFullYear()+'-'+pad(d.getMonth()+1)};
+const cbCutoff=()=>addMonth(curMonth(),-2);
+const defMonth=()=>+todayStr().slice(8,10)<=3?addMonth(curMonth(),-1):curMonth();
+const monthLabel=mo=>new Date(mo+'-01T12:00:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+
+/* --- chiffrement : mise en place, déverrouillage, données --- */
+async function cbLoadMeta(){
+  const cr=S.cbmeta.find(x=>x.id==='crypto');
+  if(!CB.keyLoaded){CB.keyLoaded=true;CB.key=await idbGet('cbk:'+CID)}
+  if(cr&&CB.key&&!CB.checked){try{if(await dec(cr.check)!=='couple-brain-ok')throw 0;CB.checked=true}catch(e){CB.key=null}}
+  if(!cr&&CB.key){CB.key=null;CB.checked=false}
+  if(CB.key){
+    const r=S.cbmeta.find(x=>x.id==='rules'),b=S.cbmeta.find(x=>x.id==='budgets');
+    try{if(r)CB.rules=await dec(r.enc)}catch(e){}try{if(b)CB.budgets=await dec(b.enc)}catch(e){}
+  }
+}
+async function cbRefresh(){
+  const out=[];
+  if(CB.key)for(const d of S.cbtx){
+    if(typeof d.enc!=='string')continue;
+    let o=CB.cache.get(d.enc);
+    if(!o){try{o=await dec(d.enc);CB.cache.set(d.enc,o)}catch(e){continue}}
+    out.push({...o,id:d.id,mo:d.mo,ts:d.ts});
+  }
+  out.sort((a,b)=>(b.d+(b.tm||'')).localeCompare(a.d+(a.tm||'')));
+  CB.tx=out;
+}
+async function cbIngest(){
+  if(CB.busy||!CB.key||gate!=='app'||!loaded.cbinbox||!loaded.cbtx||!CID)return;
+  const docs=S.cbinbox.filter(d=>typeof d.payload==='string'&&typeof d.key==='string');
+  if(!docs.length)return;
+  CB.busy=true;
+  try{
+    for(const d of docs){
+      const kd=S.cbkeys.find(k=>k.id===d.key),t=parseCardPayload(d.payload);
+      if(kd&&t){
+        const id='t_'+cyrb53(d.id);
+        if(!S.cbtx.some(x=>x.id===id))await put('cbtx',id,{mo:t.d.slice(0,7),ts:Date.now(),enc:await enc({d:t.d,tm:t.tm,m:t.m,a:t.a,c:cbCat(t.m),p:kd.owner,s:'pay'})});
+      }
+      await del('cbinbox',d.id);
+    }
+  }catch(e){console.error(e)}finally{CB.busy=false}
+}
+async function cbPurge(){
+  if(!SHARED||!M||!fs||!CID)return;
+  const k='cb-purge:'+CID,today=todayStr();let last='';try{last=localStorage.getItem(k)||''}catch(e){}
+  if(last===today)return;try{localStorage.setItem(k,today)}catch(e){}
+  const cut=addMonth(curMonth(),-13);
+  try{const snap=await M.getDocs(M.query(M.collection(fs,'couples',CID,'cbtx'),M.where('mo','<',cut)));for(const x of snap.docs)await M.deleteDoc(M.doc(fs,'couples',CID,'cbtx',x.id))}catch(e){console.error(e)}
+}
+async function cbOnData(name){
+  try{
+    if(name==='cbmeta')await cbLoadMeta();
+    if(name==='cbtx'||name==='cbmeta'){await cbRefresh();if(ui.tab==='money'&&ui.money==='card')render()}
+    if(CB.key&&loaded.cbtx){cbIngest();cbPurge()}
+  }catch(e){console.error(e)}
+}
+ACT.cbSetup=async()=>{
+  const a=$('#cb-p1').value,b=$('#cb-p2').value;
+  if(a.length<8){toast('8 caractères au minimum.');return}
+  if(a!==b){toast('Les deux phrases sont différentes.');return}
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  CB.key=await deriveKey(a,salt,200000);
+  await put('cbmeta','crypto',{salt:b64(salt),it:200000,check:await enc('couple-brain-ok')});
+  await idbSet('cbk:'+CID,CB.key);CB.checked=true;toast('Données protégées ✓');render();
+};
+ACT.cbUnlock=async()=>{
+  const cr=S.cbmeta.find(x=>x.id==='crypto'),v=$('#cb-p1');if(!cr||!v)return;
+  try{
+    const k=await deriveKey(v.value,unb64(cr.salt),cr.it);CB.key=k;
+    if(await dec(cr.check)!=='couple-brain-ok')throw 0;
+    await idbSet('cbk:'+CID,k);CB.checked=true;await cbLoadMeta();await cbRefresh();cbIngest();render();toast('Déverrouillé ✓');
+  }catch(e){CB.key=null;toast('Phrase incorrecte.')}
+};
+
+/* --- écran Carte bancaire --- */
+function cbStats(mo){
+  const tx=CB.tx.filter(t=>t.d.slice(0,7)===mo),bycat={},byp={},bym={};let tot=0;
+  tx.forEach(t=>{tot+=t.a;const c=bycat[t.c]=bycat[t.c]||{t:0,p:{}};c.t+=t.a;c.p[t.p]=(c.p[t.p]||0)+t.a;byp[t.p]=(byp[t.p]||0)+t.a;const k=cbKey(t.m),m=bym[k]=bym[k]||{m:t.m,t:0,n:0};m.t+=t.a;m.n++});
+  return{tx,tot,bycat,byp,bym};
+}
+function cbSubs(){
+  const g={};CB.tx.forEach(t=>{(g[cbKey(t.m)]=g[cbKey(t.m)]||[]).push(t)});
+  return Object.values(g).map(a=>{
+    if(new Set(a.map(t=>t.d.slice(0,7))).size<2)return null;
+    const am=a.map(t=>t.a).sort((x,y)=>x-y),med=am[Math.floor(am.length/2)];
+    return a.some(t=>Math.abs(t.a-med)>med*.1)?null:{m:a[0].m,avg:med};
+  }).filter(Boolean).sort((x,y)=>y.avg-x.avg).slice(0,6);
+}
+function cbAdvice(mo){
+  const cur=cbStats(mo),prev=cbStats(addMonth(mo,-1)),out=[];
+  if(!cur.tx.length)return out;
+  if(prev.tot&&cur.tot<prev.tot*.92)out.push(`Bravo : vos dépenses baissent de ${Math.round((1-cur.tot/prev.tot)*100)} % par rapport à ${monthLabel(addMonth(mo,-1))}.`);
+  Object.entries(cur.bycat).sort((a,b)=>b[1].t-a[1].t).forEach(([c,v])=>{const pv=(prev.bycat[c]||{}).t||0;if(pv>0&&v.t>pv*1.2&&v.t-pv>=3000&&out.length<3)out.push(`${c} : +${Math.round((v.t/pv-1)*100)} % (${fmC(v.t-pv)} de plus). Un point à regarder ensemble.`)});
+  const rt=cur.tx.filter(t=>t.c==='Restaurants'),rs=rt.reduce((s,t)=>s+t.a,0);
+  if(cur.tot&&rs/cur.tot>.2)out.push(`Les restaurants pèsent ${Math.round(rs/cur.tot*100)} % de vos dépenses. Un resto de moins par semaine, ce serait environ ${fmC(Math.round(rs/rt.length*4))} de gagné par mois.`);
+  const sb=cbSubs(),sm=sb.reduce((s,x)=>s+x.avg,0);
+  if(sb.length>=3||sm>4000)out.push(`${sb.length} abonnements repérés (environ ${fmC(sm)} par mois). Gardez ceux que vous utilisez vraiment.`);
+  const sm2=cur.tx.filter(t=>t.a<1000);
+  if(sm2.length>=15)out.push(`${sm2.length} petits achats de moins de 10 € ont coûté ${fmC(sm2.reduce((s,t)=>s+t.a,0))} : ça s’additionne vite.`);
+  Object.entries(CB.budgets).forEach(([c,b])=>{const v=(cur.bycat[c]||{}).t||0;if(b>0&&v>b*100)out.push(`Budget « ${c} » dépassé de ${fmC(v-b*100)}.`)});
+  const we=cur.tx.filter(t=>[0,6].includes(parse(t.d).getDay())).reduce((s,t)=>s+t.a,0);
+  if(cur.tot&&we/cur.tot>.45)out.push(`${Math.round(we/cur.tot*100)} % de vos dépenses ont lieu le week-end. Un menu prévu à l’avance peut aider.`);
+  if(!out.length)out.push('Rien d’alarmant ce mois-ci : vos dépenses sont stables.');
+  return out.slice(0,5);
+}
+function cardView(){
+  const box=(msg,extra='')=>`<section class="char"><span class="car">${MONA(78,94)}</span><div class="cb"><div class="bub2">${esc(msg)}</div>${extra}</div></section>`;
+  if(!loaded.cbmeta)return box('Un instant, je range mes petits papiers…');
+  const cr=S.cbmeta.find(x=>x.id==='crypto');
+  if(!cr)return box('Salut, moi c’est Mona ! Je range vos dépenses CB sous clé. Choisissez une phrase secrète : elle chiffre tout, même Firebase ne peut pas le lire.')+`<div class="cbform"><label for="cb-p1">Phrase secrète (8 caractères minimum)</label><input id="cb-p1" data-keep="cb-p1" type="password" autocomplete="new-password"><label for="cb-p2">Confirmez-la</label><input id="cb-p2" data-keep="cb-p2" type="password" autocomplete="new-password"><p class="hint">Notez-la tous les deux dans l’app Mots de passe d’Apple. Si vous la perdez, cette copie est perdue (vos vraies transactions restent chez la banque et peuvent être réimportées).</p><button class="btn primary block" data-act="cbSetup">Protéger mes données</button></div>`;
+  if(!CB.key)return box('Cette copie est protégée. Saisis la phrase secrète pour la déverrouiller sur cet iPhone.')+`<div class="cbform"><label for="cb-p1">Phrase secrète</label><input id="cb-p1" data-keep="cb-p1" data-enter="cbUnlock" type="password" autocomplete="current-password"><button class="btn primary block" style="margin-top:14px" data-act="cbUnlock">Déverrouiller</button></div>`;
+  const mo=curMonth(),st=cbStats(mo),ppl=cbPeople();
+  const msg=!CB.tx.length?'Aucun paiement reçu pour l’instant. Branchez votre Raccourci ou importez un CSV de la banque.':`Ce mois-ci, vous avez dépensé ${fmC(st.tot)} par carte.`;
+  const repLabel=+todayStr().slice(8,10)<=3?'Rapport de '+monthLabel(addMonth(mo,-1)):'Rapport du mois';
+  const tiles=ppl.map(u=>`<div class="cbp" style="--c:${cv(u)}"><span>${esc(nameOf(u))}</span><b>${fmC(st.byp[u]||0)}</b></div>`).join('');
+  const days={};CB.tx.slice(0,60).forEach(t=>{(days[t.d]=days[t.d]||[]).push(t)});
+  const list=Object.keys(days).sort().reverse().map(d=>`<p class="subhead cf">${esc(fmtLong(d))}</p><div class="group">${days[d].map(t=>`<div class="cbrow"><span class="dot" style="--c:${cv(t.p)}"></span><span class="m"><b>${esc(t.m)}</b><small>${esc(nameOf(t.p))}${t.tm?' · '+esc(t.tm):''}${t.s==='csv'?' · CSV':''}</small></span><button class="catchip" data-act="cbCat" data-id="${t.id}">${esc(t.c)}</button><span class="amt">${fmC(t.a)}</span></div>`).join('')}</div>`).join('');
+  return box(msg,`<button class="btn cbtn" data-act="cbReport">${esc(repLabel)}</button>`)+`<div class="cbt">${tiles}</div><div class="cbtools"><button class="btn sm" data-act="cbKeys">Capturer mes paiements</button><button class="btn sm" data-act="cbCsv">Importer un CSV</button><button class="btn sm" data-act="cbSet">Réglages</button><button class="btn sm" data-act="cbHideTog" aria-pressed="${CB_HIDE()}">${CB_HIDE()?'Afficher les montants':'Mode discret'}</button></div>`+list;
+}
+ACT.cbHideTog=()=>{try{localStorage.setItem('cb-hide',CB_HIDE()?'0':'1')}catch(e){}render()};
+ACT.cbCat=el=>{
+  const t=CB.tx.find(x=>x.id===el.dataset.id);if(!t)return;
+  openSheet('Catégorie',`<p class="muted" style="margin:6px 0 0"><b>${esc(t.m)}</b> · ${fmC(t.a)}</p><div class="wrapchips" style="margin-top:14px">${CATS.map(c=>chip('cbSetCat',c,c,c===t.c).replace('data-act="cbSetCat"',`data-act="cbSetCat" data-id="${esc(t.id)}"`)).join('')}</div><p class="hint">Je m’en souviendrai pour les prochains paiements de ce commerçant.</p>`);
+};
+ACT.cbSetCat=async el=>{
+  const t=CB.tx.find(x=>x.id===el.dataset.id),c=el.dataset.val;if(!t)return;
+  closeSheet();const k=cbKey(t.m);CB.rules[k]=c;
+  await put('cbmeta','rules',{enc:await enc(CB.rules)});
+  for(const x of CB.tx.filter(y=>cbKey(y.m)===k&&y.c!==c).slice(0,40)){const {id:_i,mo,ts,...o}=x;o.c=c;await put('cbtx',x.id,{mo,ts,enc:await enc(o)})}
+  toast(`Mona retiendra : ${t.m} → ${c}`);
+};
+/* --- rapport mensuel --- */
+function cbReportHtml(mo){
+  const st=cbStats(mo),pv=cbStats(addMonth(mo,-1)),ppl=cbPeople();
+  const nav=`<div class="monthbar"><button class="iconbtn" data-act="cbRepNav" data-d="-1" aria-label="Mois précédent">${ic('left')}</button><h2 class="cap" style="font-size:22px">${esc(monthLabel(mo))}</h2><button class="iconbtn" data-act="cbRepNav" data-d="1" aria-label="Mois suivant">${ic('chev')}</button></div>`;
+  if(!st.tx.length)return nav+'<p class="muted">Aucune dépense enregistrée pour ce mois.</p>';
+  const cats=Object.entries(st.bycat).sort((a,b)=>b[1].t-a[1].t),max=cats[0][1].t;
+  const rows=cats.map(([c,v])=>{const p0=(pv.bycat[c]||{}).t||0,dl=p0?Math.round((v.t/p0-1)*100):null,bg=CB.budgets[c];return `<div class="rp-c"><div class="rp-h"><b>${esc(c)}</b><span>${fmC(v.t)}${dl!==null?` <em class="${dl>0?'up':'dn'}">${dl>0?'+':''}${dl} %</em>`:''}</span></div><div class="rp-bar">${ppl.map(u=>`<i style="width:${(v.p[u]||0)/max*100}%;background:${cv(u)}"></i>`).join('')}</div>${bg?`<small class="muted">Budget ${bg} € : ${CB_HIDE()?'••':Math.round(v.t/bg)+' %'}</small>`:''}</div>`}).join('');
+  const tiles=ppl.map(u=>`<div class="cbp" style="--c:${cv(u)}"><span>${esc(nameOf(u))}</span><b>${fmC(st.byp[u]||0)}</b></div>`).join('');
+  const tops=Object.values(st.bym).sort((a,b)=>b.t-a.t).slice(0,5).map(x=>`<li><span>${esc(x.m)}</span><b>${fmC(x.t)}</b></li>`).join('');
+  const subs=cbSubs().map(x=>`<li><span>${esc(x.m)}</span><b>${fmC(x.avg)}/mois</b></li>`).join('');
+  const adv=cbAdvice(mo).map(a=>`<li>${esc(a)}</li>`).join('');
+  return nav+`<p class="rp-tot">${fmC(st.tot)}${pv.tot?` <em class="${st.tot>pv.tot?'up':'dn'}">${st.tot>pv.tot?'+':''}${Math.round((st.tot/pv.tot-1)*100)} % vs mois précédent</em>`:''}</p><div class="cbt">${tiles}</div><p class="subhead">Par catégorie</p>${rows}<p class="subhead">Plus gros commerçants</p><ul class="rp-l">${tops}</ul>${subs?`<p class="subhead">Abonnements repérés</p><ul class="rp-l">${subs}</ul>`:''}<p class="subhead">Les conseils de Mona</p><ul class="rp-adv">${adv}</ul><div class="sheet-actions"><button class="btn" data-act="cbRepCopy">Copier le rapport</button></div>`;
+}
+ACT.cbReport=()=>{CB.rm=defMonth();openSheet('Rapport de Mona','<div id="rp"></div>');$('#rp').innerHTML=cbReportHtml(CB.rm)};
+ACT.cbRepNav=el=>{const mo=addMonth(CB.rm,+el.dataset.d);if(mo<cbCutoff()||mo>curMonth())return;CB.rm=mo;$('#rp').innerHTML=cbReportHtml(mo)};
+ACT.cbRepCopy=()=>{
+  const st=cbStats(CB.rm),E=c=>eur.format(c/100);
+  const L=[`Rapport CB — ${monthLabel(CB.rm)}`,`Total : ${E(st.tot)}`,...cbPeople().map(u=>`${nameOf(u)} : ${E(st.byp[u]||0)}`),'',...Object.entries(st.bycat).sort((a,b)=>b[1].t-a[1].t).map(([c,v])=>`${c} : ${E(v.t)}`),'',...cbAdvice(CB.rm).map(a=>'• '+a.replace(/\d[\d\s,.]*\s?€|•••\s?€/g,m=>m))];
+  copyText(L.join('\n'),null);
+};
+/* --- clés de capture (une par personne) --- */
+const cbUrl=()=>FBCFG&&CID?`https://firestore.googleapis.com/v1/projects/${FBCFG.projectId}/databases/(default)/documents/couples/${CID}/cbinbox?key=${FBCFG.apiKey}`:'';
+ACT.cbKeys=()=>{
+  if(!SHARED){toast('Disponible une fois Firebase configuré.');return}
+  const mine=S.cbkeys.find(k=>k.owner===ME),oid=otherId(),other=S.cbkeys.find(k=>k.owner===oid);
+  openSheet('Capturer mes paiements',`<p class="muted" style="margin:6px 0 0">Un Raccourci de <b>ton</b> iPhone envoie chaque paiement Apple Pay (montant, commerçant) à Mona. Cette clé secrète remplace un mot de passe et dit que le paiement est le tien.</p>
+    ${mine?`<label>Adresse à coller dans le Raccourci</label><code class="urlbox" id="cb-url">${esc(cbUrl())}</code><label>Ta clé personnelle</label><code class="urlbox" id="cb-mykey">${esc(mine.id)}</code><div class="btnrow" style="margin:10px 0 0"><button class="btn sm" data-act="cbCopyUrl">Copier l’adresse</button><button class="btn sm" data-act="cbCopyKey">Copier ma clé</button></div><div class="sheet-actions"><button class="btn danger" data-act="cbDelKey">Supprimer ma clé</button></div>`:`<div class="sheet-actions"><button class="btn primary" data-act="cbMakeKey">Créer ma clé</button></div>`}
+    <p class="hint" style="margin-top:14px">${esc(nameOf(oid))} : ${other?'clé créée ✓':'pas encore de clé'}. Chacun crée la sienne sur son iPhone. Ne partagez jamais ces clés.</p>`);
+};
+ACT.cbMakeKey=async()=>{await put('cbkeys',genKey(),{owner:ME,ts:Date.now()});ACT.cbKeys()};
+ACT.cbDelKey=el=>arm(el,async()=>{for(const k of S.cbkeys.filter(x=>x.owner===ME))await del('cbkeys',k.id);closeSheet();toast('Clé supprimée : ton Raccourci ne peut plus écrire.')});
+ACT.cbCopyUrl=()=>copyText($('#cb-url').textContent,$('#cb-url'));
+ACT.cbCopyKey=()=>copyText($('#cb-mykey').textContent,$('#cb-mykey'));
+/* --- réglages : budgets, effacement --- */
+ACT.cbSet=()=>openSheet('Réglages de Mona',`<p class="muted" style="margin:6px 0 0">Budgets mensuels par catégorie (facultatif, en €).</p>${CATS.map((c,i)=>`<label for="bg-${i}">${esc(c)}</label><input id="bg-${i}" inputmode="decimal" value="${CB.budgets[c]||''}" placeholder="—">`).join('')}<div class="sheet-actions"><button class="btn primary" data-act="cbSaveBudgets">Enregistrer les budgets</button></div><div class="sheet-actions"><button class="btn danger" data-act="cbWipe">Tout effacer</button></div><p class="hint">« Tout effacer » supprime toutes les dépenses, les règles et la phrase secrète de cet espace. Les données de plus de 13 mois sont supprimées automatiquement.</p>`);
+ACT.cbSaveBudgets=async()=>{const b={};CATS.forEach((c,i)=>{const v=parseAmount($('#bg-'+i).value);if(v>0)b[c]=Math.round(v)});CB.budgets=b;closeSheet();await put('cbmeta','budgets',{enc:await enc(b)});toast('Budgets enregistrés')};
+ACT.cbWipe=el=>arm(el,async()=>{
+  closeSheet();
+  for(const c of ['cbtx','cbinbox','cbmeta']){
+    if(SHARED&&M){const snap=await M.getDocs(M.query(M.collection(fs,'couples',CID,c)));for(const x of snap.docs)await M.deleteDoc(M.doc(fs,'couples',CID,c,x.id))}
+    else for(const x of S[c])await del(c,x.id);
+  }
+  await idbSet('cbk:'+CID,null);cbReset();CB.keyLoaded=true;render();toast('Tout est effacé.');
+});
+/* --- import d'un CSV de la banque (traité sur l'iPhone) --- */
+function parseCsv(text){
+  const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());if(lines.length<2)return[];
+  const dl=(lines[0].match(/;/g)||[]).length>=(lines[0].match(/,/g)||[]).length?';':',';
+  const sp=l=>{const o=[];let c='',q=false;for(const ch of l){if(ch==='"')q=!q;else if(ch===dl&&!q){o.push(c);c=''}else c+=ch}o.push(c);return o.map(x=>x.trim())};
+  const head=sp(lines[0]).map(nrm),ix=re=>head.findIndex(h=>re.test(h));
+  const iD=ix(/date/),iL=ix(/libelle|label|description|detail|intitule|operation|commercant|merchant/),iA=ix(/^montant|amount/),iDb=ix(/debit/);
+  if(iD<0||iL<0||(iA<0&&iDb<0))return[];
+  const raw=[];
+  for(const l of lines.slice(1)){
+    const c=sp(l);let a=0;
+    if(iDb>=0&&parseAmount(c[iDb]))a=-Math.abs(parseAmount(c[iDb]));else if(iA>=0)a=parseAmount(c[iA]);
+    let d='';const s=c[iD]||'',m1=/^(\d{4})-(\d{2})-(\d{2})/.exec(s),m2=/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/.exec(s);
+    if(m1)d=`${m1[1]}-${m1[2]}-${m1[3]}`;else if(m2)d=`${m2[3].length===2?'20'+m2[3]:m2[3]}-${pad(+m2[2])}-${pad(+m2[1])}`;
+    if(d&&a&&c[iL])raw.push({d,m:c[iL].replace(/^(carte|cb|paiement|achat)\s+(cb\s+)?/i,'').slice(0,60)||c[iL],a});
+  }
+  const neg=raw.filter(r=>r.a<0).length,spendNeg=neg>=raw.length/2;
+  return raw.filter(r=>spendNeg?r.a<0:r.a>0).map(r=>({d:r.d,m:r.m,a:Math.round(Math.abs(r.a)*100)}));
+}
+$('#cb-csv').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  const rows=parseCsv(await f.text());
+  if(!rows.length){toast('Je n’ai pas reconnu ce fichier (colonnes date, libellé, montant).');return}
+  CB.csv={rows,who:ME};cbCsvSheet();
+});
+function cbCsvSheet(){
+  const c=CB.csv,ds=c.rows.map(r=>r.d).sort();
+  openSheet('Importer un CSV',`<p class="muted" style="margin:6px 0 0">${c.rows.length} dépenses du ${esc(fmtShort(ds[0]))} au ${esc(fmtShort(ds[ds.length-1]))} — le fichier reste sur ton iPhone.</p><label>Cette carte est celle de…</label><div class="wrapchips">${cbPeople().map(u=>chip('cbWho',u,nameOf(u),c.who===u)).join('')}</div><div class="sheet-actions"><button class="btn primary" data-act="cbImport">Importer</button></div>`);
+}
+ACT.cbCsv=()=>$('#cb-csv').click();
+ACT.cbWho=el=>{CB.csv.who=el.dataset.val;cbCsvSheet()};
+ACT.cbImport=async()=>{
+  const c=CB.csv;if(!c)return;closeSheet();CB.csv=null;
+  let n=0,dup=0;const seen={},jobs=[];
+  for(const r of c.rows){
+    const t={d:r.d,tm:'',m:r.m,a:r.a,c:cbCat(r.m),p:c.who,s:'csv'};
+    if(CB.tx.some(x=>x.p===t.p&&x.a===t.a&&Math.abs(diffDays(x.d,t.d))<=1&&(x.s==='pay'||nrm(x.m).slice(0,4)===nrm(t.m).slice(0,4)))){dup++;continue}
+    const base=cyrb53([t.p,t.d,t.a,cbKey(t.m)].join('|'));seen[base]=(seen[base]||0)+1;
+    const id='c_'+base+'_'+seen[base];
+    if(CB.tx.some(x=>x.id===id)){dup++;continue}
+    jobs.push([id,t]);n++;
+  }
+  for(let i=0;i<jobs.length;i+=15)await Promise.all(jobs.slice(i,i+15).map(async([id,t])=>put('cbtx',id,{mo:t.d.slice(0,7),ts:Date.now(),enc:await enc(t)})));
+  toast(`${n} dépense${n>1?'s':''} importée${n>1?'s':''}${dup?`, ${dup} déjà présente${dup>1?'s':''}`:''}`);
+};
+
 /* ---------- Écrans de connexion ---------- */
 function logoSvg(){
   return `<svg class="gate-logo" viewBox="0 0 230 150" aria-hidden="true"><defs><clipPath id="gl"><circle cx="82" cy="75" r="64"/></clipPath></defs><circle cx="82" cy="75" r="64" style="fill:var(--c1)"/><circle cx="148" cy="75" r="64" style="fill:var(--c2)"/><circle cx="148" cy="75" r="64" clip-path="url(#gl)" style="fill:var(--ink)"/><g transform="translate(106 66) scale(.75)" style="fill:var(--bg)"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0112 7.6 4.3 4.3 0 0119.5 10c0 5.4-7.5 10-7.5 10z"/></g></svg>`;
@@ -2191,6 +2471,7 @@ ACT.shareCode=async()=>{
 function onData(name){
   render();
   if(name==='events'||name==='inbox')ingestInbox();
+  if(name.startsWith('cb'))cbOnData(name);
   if(name==='people'&&loaded.people&&!onboarded&&!P(ME)){onboarded=true;profileSheet(true)}
 }
 function subscribe(){
@@ -2204,14 +2485,14 @@ function subscribe(){
 function fsAdapter(){
   const col=n=>M.collection(fs,'couples',CID,n),ref=(n,id)=>M.doc(fs,'couples',CID,n,id);
   return{collection:n=>({
-    onSnapshot:(next,err)=>M.onSnapshot(n==='photos'?M.query(col(n),M.orderBy('ts','desc'),M.limit(30)):col(n),next,err),
+    onSnapshot:(next,err)=>M.onSnapshot(n==='photos'?M.query(col(n),M.orderBy('ts','desc'),M.limit(30)):n==='cbtx'?M.query(col(n),M.where('mo','>=',cbCutoff())):col(n),next,err),
     doc:id=>({set:v=>M.setDoc(ref(n,id),v),update:v=>M.updateDoc(ref(n,id),v),delete:()=>M.deleteDoc(ref(n,id))})
   })};
 }
 function teardown(){
   UNSUBS.forEach(f=>{try{f()}catch(e){}});UNSUBS=[];
   Object.keys(S).forEach(k=>{S[k]=[];delete loaded[k]});
-  CID=null;COUPLE=null;onboarded=false;closeSheet();
+  CID=null;COUPLE=null;onboarded=false;closeSheet();cbReset();
 }
 function startApp(){
   db=fsAdapter();SHARED=true;gate='app';ui.gateErr='';
